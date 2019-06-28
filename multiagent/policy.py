@@ -51,3 +51,21 @@ class InteractivePolicy(Policy):
         if k==key.RIGHT: self.move[1] = False
         if k==key.UP:    self.move[2] = False
         if k==key.DOWN:  self.move[3] = False
+
+class RandomPolicy(Policy):
+    def __init__(self, env):
+        super(RandomPolicy, self).__init__()
+        self.env = env
+
+    def action(self, obs):
+        u = np.zeros(5)
+        move = np.random.randint(2)
+        if move == 0:
+            u[0] += 1.0
+        elif move == 1:
+            u[1:] = np.random.random(4)*0.1
+        else:
+            assert False
+        action = np.concatenate([u, np.zeros(self.env.world.dim_c)])
+        return action
+
