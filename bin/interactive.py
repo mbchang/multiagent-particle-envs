@@ -29,9 +29,11 @@ if __name__ == '__main__':
         # query for action from each agent's policy
         act_n = []
         for i, policy in enumerate(policies):
-            act_n.append(policy.action(obs_n[i]))
+            action = policy.action(obs_n[i])
+            act_n.append(action)
         # step environment
         obs_n, reward_n, done_n, _ = env.step(act_n)
+        print('Obs: {} Act: {} Rew: {}'.format(obs_n, act_n, reward_n))
         # render all agent views
         env.render()
         # display rewards
