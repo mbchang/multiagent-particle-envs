@@ -29,7 +29,8 @@ class Entity(object):
         # name 
         self.name = ''
         # properties:
-        self.size = 0.050
+        # self.size = 0.050
+        self.size = 0.1  # CHANGED
         # entity can move / be pushed
         self.movable = False
         # entity collides with others
