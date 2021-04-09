@@ -69,3 +69,21 @@ class RandomPolicy(Policy):
         action = np.concatenate([u, np.zeros(self.env.world.dim_c)])
         return action
 
+class SingleActionPolicy(Policy):
+    def __init__(self, env):
+        super(SingleActionPolicy, self).__init__()
+        self.env = env
+        self.has_acted = False
+
+    def action(self, obs):
+        u = np.zeros(5)
+        move = np.random.randint(2)  # choose whether to move or not move
+        if move == 0 or self.has_acted:
+            u[0] += 1.0  # set the "not move" flag to True
+        elif move == 1:
+            u[1:] = np.random.random(4)*0.1  # sample a random force in the four cardinal directions
+            self.has_acted = True
+        else:
+            assert False
+        action = np.concatenate([u, np.zeros(self.env.world.dim_c)])
+        return action

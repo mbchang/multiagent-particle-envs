@@ -4,7 +4,7 @@ sys.path.insert(1, os.path.join(sys.path[0], '..'))
 import argparse
 
 from multiagent.environment import MultiAgentEnv
-from multiagent.policy import RandomPolicy
+from multiagent.policy import RandomPolicy, SingleActionPolicy
 import multiagent.scenarios as scenarios
 
 if __name__ == '__main__':
@@ -23,6 +23,7 @@ if __name__ == '__main__':
     env.render()
     # create interactive policies for each agent
     policies = [RandomPolicy(env) for i in range(env.n)]
+    # policies = [SingleActionPolicy(env) for i in range(env.n)]
     # execution loop
     obs_n = env.reset()
     while True:
