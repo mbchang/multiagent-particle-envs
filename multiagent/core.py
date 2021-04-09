@@ -196,6 +196,24 @@ class World(object):
         return [force_a, force_b]
 
 class GravityWorld(World):
+    def __init__(self):
+        # list of agents and entities (can change at execution-time!)
+        self.agents = []
+        self.landmarks = []
+        # communication channel dimensionality
+        self.dim_c = 0
+        # position dimensionality
+        self.dim_p = 2
+        # color dimensionality
+        self.dim_color = 3
+        # simulation timestep
+        self.dt = 0.1
+        # physical damping
+        self.damping = 0.05
+        # contact response parameters
+        self.contact_force = 1e+2
+        self.contact_margin = 1e-3
+
     # update state of the world
     def step(self):
         # set actions for scripted agents 
@@ -242,7 +260,7 @@ class GravityWorld(World):
         penetration = np.logaddexp(0, -(dist - dist_min)/k)*k
         ########################################
         r = max(dist, dist_min)
-        g = 0.01
+        g = 0.001
         m1 = 1.0
         m2 = 1.0
         force = g * m1 * m2 / (r**2) 
