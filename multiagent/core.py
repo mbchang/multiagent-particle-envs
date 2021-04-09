@@ -45,6 +45,8 @@ class Entity(object):
         self.state = EntityState()
         # mass
         self.initial_mass = 1.0
+        # gravity
+        self.attractive = False
 
     @property
     def mass(self):
@@ -54,6 +56,15 @@ class Entity(object):
 class Landmark(Entity):
      def __init__(self):
         super(Landmark, self).__init__()
+        self.collide = False
+        self.attractive = False
+
+# properties of landmark entities
+class Planet(Entity):
+     def __init__(self):
+        super(Planet, self).__init__()
+        self.collide = True
+        self.attractive = True
 
 # properties of agent entities
 class Agent(Entity):
@@ -77,6 +88,12 @@ class Agent(Entity):
         self.action = Action()
         # script behavior to execute
         self.action_callback = None
+
+class Spaceship(Agent):
+    def __init__(self):
+        super(Spaceship, self).__init__()
+        self.collide = True
+        self.attractive = True
 
 # multi-agent world
 class World(object):
@@ -250,6 +267,8 @@ class GravityWorld(World):
 
     # get collision forces for any contact between two entities
     def get_attraction_force(self, entity_a, entity_b):
+        if (not entity_a.attractive) or (not entity_b.attractive):
+            return [None, None] # not a collider
         # compute actual distance between entities
         delta_pos = entity_a.state.p_pos - entity_b.state.p_pos
         dist = np.sqrt(np.sum(np.square(delta_pos)))
