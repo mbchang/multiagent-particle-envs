@@ -1,24 +1,24 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from multiagent.core import World, Agent, Landmark
+from multiagent.core import World, Agent, Landmark, GravityWorld
 from multiagent.scenario import BaseScenario
 
 class Scenario(BaseScenario):
     colors = plt.cm.rainbow(np.linspace(0,1,20))
 
     def make_world(self):
-        world = World()
+        world = GravityWorld()
         # add agents
         world.agents = [Agent() for i in range(1)]
         for i, agent in enumerate(world.agents):
             agent.name = 'agent %d' % i
-            agent.collide = False
+            agent.collide = True
             agent.silent = True
         # add landmarks
         world.landmarks = [Landmark() for i in range(1)]
         for i, landmark in enumerate(world.landmarks):
             landmark.name = 'landmark %d' % i
-            landmark.collide = False
+            landmark.collide = True
             landmark.movable = False
         # make initial conditions
         self.reset_world(world)

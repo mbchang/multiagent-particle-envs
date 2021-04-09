@@ -194,3 +194,67 @@ class World(object):
         force_a = +force if entity_a.movable else None
         force_b = -force if entity_b.movable else None
         return [force_a, force_b]
+
+class GravityWorld(World):
+    # update state of the world
+    def step(self):
+        # set actions for scripted agents 
+        for agent in self.scripted_agents:
+            agent.action = agent.action_callback(agent, self)
+        # gather forces applied to entities
+        p_force = [None] * len(self.entities)
+        # apply agent physical controls
+        p_force = self.apply_action_force(p_force)
+        # apply attraction forces
+        p_force = self.apply_attraction_force(p_force)
+        # apply environment forces
+        p_force = self.apply_environment_force(p_force)
+        # integrate physical state
+        self.integrate_state(p_force)
+        # update agent state
+        for agent in self.agents:
+            self.update_agent_state(agent)
+
+    # gather physical forces acting on entities
+    def apply_attraction_force(self, p_force):
+        # simple (but inefficient) collision response
+        for a,entity_a in enumerate(self.entities):
+            for b,entity_b in enumerate(self.entities):
+                if(b <= a): continue
+                [f_a, f_b] = self.get_attraction_force(entity_a, entity_b)
+                if(f_a is not None):
+                    if(p_force[a] is None): p_force[a] = 0.0
+                    p_force[a] = f_a + p_force[a] 
+                if(f_b is not None):
+                    if(p_force[b] is None): p_force[b] = 0.0
+                    p_force[b] = f_b + p_force[b]        
+        return p_force
+
+    # get collision forces for any contact between two entities
+    def get_attraction_force(self, entity_a, entity_b):
+        # compute actual distance between entities
+        delta_pos = entity_a.state.p_pos - entity_b.state.p_pos
+        dist = np.sqrt(np.sum(np.square(delta_pos)))
+        # minimum allowable distance
+        dist_min = entity_a.size + entity_b.size
+        # softmax penetration
+        k = self.contact_margin
+        penetration = np.logaddexp(0, -(dist - dist_min)/k)*k
+        ########################################
+        r = max(dist, dist_min)
+        g = 0.01
+        m1 = 1.0
+        m2 = 1.0
+        force = g * m1 * m2 / (r**2) 
+        force = force * delta_pos / dist
+
+        force_a = -force if entity_a.movable else None
+        force_b = +force if entity_b.movable else None
+        ########################################
+        return [force_a, force_b]
+
+
+
+
+
+
