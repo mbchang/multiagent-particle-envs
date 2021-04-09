@@ -59,11 +59,11 @@ class RandomPolicy(Policy):
 
     def action(self, obs):
         u = np.zeros(5)
-        move = np.random.randint(2)
+        move = np.random.randint(2)  # choose whether to move or not move
         if move == 0:
-            u[0] += 1.0
+            u[0] += 1.0  # set the "not move" flag to True
         elif move == 1:
-            u[1:] = np.random.random(4)*0.1
+            u[1:] = np.random.random(4)*0.1  # sample a random force in the four cardinal directions
         else:
             assert False
         action = np.concatenate([u, np.zeros(self.env.world.dim_c)])
