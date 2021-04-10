@@ -154,6 +154,7 @@ class MultiAgentEnv(gym.Env):
                 index += s
             action = act
         else:
+            # we are in this branch
             action = [action]
 
         if agent.movable:
@@ -166,11 +167,13 @@ class MultiAgentEnv(gym.Env):
                 if action[0] == 3: agent.action.u[1] = -1.0
                 if action[0] == 4: agent.action.u[1] = +1.0
             else:
+                # we are in this branch
                 if self.force_discrete_action:
                     d = np.argmax(action[0])
                     action[0][:] = 0.0
                     action[0][d] = 1.0
                 if self.discrete_action_space:
+                    # we are in this branch
                     agent.action.u[0] += action[0][1] - action[0][2]
                     agent.action.u[1] += action[0][3] - action[0][4]
                 else:
