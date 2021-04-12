@@ -9,6 +9,10 @@ import cv2
 import pygame
 from pygame import Color, Rect
 
+# import matplotlib
+# matplotlib.use('Agg')
+# from matplotlib import pyplot as plt
+
 RenderedEntity = namedtuple('RenderedEntity', ('color', 'pos', 'size'))
 
 
@@ -19,8 +23,29 @@ class PygameRenderer():
     def __init__(self, screen_width, screen_height):
         self.screen_width = screen_width
         self.screen_height = screen_height
-
+        # assert False
         pygame.init()
+        # assert False
+
+
+        # for some reason this pygame.init() is causing the following error
+
+
+
+# X Error of failed request:  BadValue (integer parameter out of range for operation)
+#   Major opcode of failed request:  151 (GLX)
+#   Minor opcode of failed request:  3 (X_GLXCreateContext)
+#   Value in failed request:  0x0
+#   Serial number of failed request:  72
+#   Current serial number in output stream:  73
+
+
+
+        # assert False
+        # self.screen = pygame.display.set_mode(
+        #     (self.screen_width, self.screen_height), 0, 32)
+
+    def reset(self):
         self.screen = pygame.display.set_mode(
             (self.screen_width, self.screen_height), 0, 32)
 
@@ -54,6 +79,7 @@ class PygameRenderer():
         return RenderedEntity(color=color, pos=pos, size=size)
 
     def render(self, entities, target_size):
+        # should you start the screen here?
         border = Rect(0, 0, self.screen_width, self.screen_height)
         pygame.draw.rect(self.screen, Color("black"), border)
         for entity in entities:
@@ -70,13 +96,23 @@ class PygameRenderer():
         # x = x.transpose((2,0,1))
         return x
 
-    def quit(self):
-        sys.exit()
+    def close(self):
+        pygame.display.quit()
+        # pygame.quit()
 
 
 # environment for all agents in the multiagent world
 # currently code assumes that no agents will be created/destroyed at runtime!
-class MultiAgentEnv(gym.Env):
+# class MultiAgentEnv(gym.Env):
+#     metadata = {
+#         'render.modes' : ['human', 'rgb_array']
+#     }
+
+#     def __init__(self, world, reset_callback=None, reward_callback=None,
+#                  observation_callback=None, info_callback=None,
+#                  done_callback=None, shared_viewer=True):
+
+class PGMultiAgentEnv():
     metadata = {
         'render.modes' : ['human', 'rgb_array']
     }
@@ -84,6 +120,8 @@ class MultiAgentEnv(gym.Env):
     def __init__(self, world, reset_callback=None, reward_callback=None,
                  observation_callback=None, info_callback=None,
                  done_callback=None, shared_viewer=True):
+
+        # assert False
 
         self.world = world
         self.agents = self.world.policy_agents
@@ -150,6 +188,8 @@ class MultiAgentEnv(gym.Env):
         # rendering
         self.shared_viewer = shared_viewer
         assert self.shared_viewer
+
+        # assert False
         self.viewer = PygameRenderer(screen_width=256, screen_height=256)
         # if self.shared_viewer:
         #     self.viewers = [None]
@@ -196,8 +236,9 @@ class MultiAgentEnv(gym.Env):
         return obs_n
 
     def close(self):
-        for viewer in self.viewers:
-            viewer.close()
+        # for viewer in self.viewers:
+        #     viewer.close()
+        self.viewer.close()
 
     # get info used for benchmarking
     def _get_info(self, agent):
@@ -285,7 +326,8 @@ class MultiAgentEnv(gym.Env):
 
     # reset rendering assets
     def _reset_render(self):
-        pass
+        self.viewer.reset()
+        # pass
         # self.render_geoms = None
         # self.render_geoms_xform = None
 
