@@ -38,9 +38,9 @@ class Scenario(BaseScenario):
             agent.state.p_vel = np.zeros(world.dim_p)
             agent.state.c = np.zeros(world.dim_c)
 
-        world.landmarks[0].state.p_pos = np.array([1., 0.])
+        world.landmarks[0].state.p_pos = np.array([0.5, 0.])
         world.landmarks[1].state.p_pos = np.array([0., 1.])
-        world.landmarks[2].state.p_pos = np.array([-1., -1.])
+        world.landmarks[2].state.p_pos = np.array([1., 1.])
 
         world.landmarks[0].state.p_vel = np.zeros(world.dim_p)
         world.landmarks[1].state.p_vel = np.zeros(world.dim_p)

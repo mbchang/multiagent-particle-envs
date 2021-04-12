@@ -6,7 +6,7 @@ import matplotlib
 matplotlib.use('Agg')
 from matplotlib import pyplot as plt
 
-from multiagent.environment import MultiAgentEnv
+from multiagent.pygame_environment import MultiAgentEnv
 from multiagent.policy import RandomPolicy, SingleActionPolicy
 import multiagent.scenarios as scenarios
 
@@ -48,7 +48,7 @@ if __name__ == '__main__':
         # for xx in x:
         #     print
         # x = x.transpose
-        plt.imsave('debug/static_old_renderer.png', x[0])
+        plt.imsave('debug/static_pygame_renderer_xform.png', x[0])
         plt.close()
 
         break
