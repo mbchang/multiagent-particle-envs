@@ -6,7 +6,7 @@ import matplotlib
 matplotlib.use('Agg')
 from matplotlib import pyplot as plt
 
-from multiagent.pygame_environment import MultiAgentEnv
+from multiagent.pygame_environment import PGMultiAgentEnv
 from multiagent.policy import RandomPolicy, SingleActionPolicy
 import multiagent.scenarios as scenarios
 
@@ -21,7 +21,7 @@ if __name__ == '__main__':
     # create world
     world = scenario.make_world()
     # create multiagent environment
-    env = MultiAgentEnv(world, scenario.reset_world, scenario.reward, scenario.observation, info_callback=None, shared_viewer = True)
+    env = PGMultiAgentEnv(world, scenario.reset_world, scenario.reward, scenario.observation, info_callback=None, shared_viewer = True)
     # render call to create viewer window (necessary only for interactive policies)
     env.render()
     # create interactive policies for each agent
