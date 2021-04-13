@@ -300,10 +300,7 @@ class BoxWorld(World):
         World.__init__(self)
         # physical damping override
         self.damping = 0
-
         self.boundaries = Boundaries(left=-1, top=1, right=1, bottom=-1)
-
-
 
     # update state of the world
     def step(self):
@@ -323,95 +320,6 @@ class BoxWorld(World):
         # update agent state
         for agent in self.agents:
             self.update_agent_state(agent)
-
-    # # TODO: handle the case where entities can collide with other entities
-    # def handle_wall_collision(self):
-    #     for i, entity in enumerate(self.entities):
-    #         # ok for now at least we just care about wall collisions, not entities colliding with each other
-    #         assert not entity.collide
-    #         # also make sure that the diameter of the entity is not bigger than the box boundary
-    #         assert 2 * entity.size < self.boundaries.right - self.boundaries.left
-    #         assert 2 * entity.size < self.boundaries.top - self.boundaries.bottom
-
-    #         entity_px, entity_py = entity.state.p_pos
-    #         entity_vx, entity_vy = entity.state.p_vel
-    #         tmp_pos = np.zeros_like(entity.state.p_pos)
-    #         tmp_vel = np.zeros_like(entity.state.p_vel)
-
-    #         # check if colide with left
-    #         if entity_px - entity.size < self.boundaries.left:
-    #             dist = np.abs((entity_px - entity.size) - self.boundaries.left)
-    #             tmp_pos[0] += dist
-    #             tmp_vel[0] += -2*entity_vx
-
-    #         # check if collide with right
-    #         if entity_px + entity.size > self.boundaries.right:
-    #             dist = np.abs((entity_px + entity.size) - self.boundaries.right)
-    #             tmp_pos[0] += -dist
-    #             tmp_vel[0] += -2*entity_vx
-
-    #         # check if collide with bottom
-    #         if entity_py - entity.size < self.boundaries.bottom:
-    #             dist = np.abs((entity_py - entity.size) - self.boundaries.bottom)
-    #             tmp_pos[1] += dist
-    #             tmp_vel[1] += -2*entity_vy
-
-    #         # check if collide with top
-    #         if entity_py + entity.size > self.boundaries.top:
-    #             dist = np.abs((entity_py + entity.size) - self.boundaries.top)
-    #             tmp_pos[1] += -dist
-    #             tmp_vel[1] += -2*entity_vy
-
-    #         # then update after we've checked everything. 
-    #         entity.state.p_pos += tmp_pos
-    #         entity.state.p_vel += tmp_vel
-
-
-    # # TODO: handle the case where entities can collide with other entities
-    # def handle_wall_collision(self):
-    #     for i, entity in enumerate(self.entities):
-    #         # ok for now at least we just care about wall collisions, not entities colliding with each other
-    #         assert not entity.collide
-    #         # also make sure that the diameter of the entity is not bigger than the box boundary
-    #         assert 2 * entity.size < self.boundaries.right - self.boundaries.left
-    #         assert 2 * entity.size < self.boundaries.top - self.boundaries.bottom
-
-    #         entity_px, entity_py = entity.state.p_pos
-    #         entity_vx, entity_vy = entity.state.p_vel
-    #         tmp_pos = np.zeros_like(entity.state.p_pos)
-    #         tmp_vel = np.zeros_like(entity.state.p_vel)
-
-    #         # if positive, then there is protrusion
-    #         left_protrusion = self.boundaries.left - (entity_px - entity.size)
-    #         right_protrusion = (entity_px + entity.size) - self.boundaries.right
-    #         bottom_protrusion = self.boundaries.bottom - (entity_py - entity.size)
-    #         top_protrusion = (entity_py + entity.size) - self.boundaries.top
-
-    #         # check if colide with left
-    #         if left_protrusion > 0:
-    #             tmp_pos[0] += left_protrusion
-    #             tmp_vel[0] += -2*entity_vx
-
-    #         # check if collide with right
-    #         if right_protrusion > 0:
-    #             tmp_pos[0] += -right_protrusion
-    #             tmp_vel[0] += -2*entity_vx
-
-    #         # check if collide with bottom
-    #         if bottom_protrusion > 0:
-    #             tmp_pos[1] += bottom_protrusion
-    #             tmp_vel[1] += -2*entity_vy
-
-    #         # check if collide with top
-    #         if top_protrusion > 0:
-    #             tmp_pos[1] += -top_protrusion
-    #             tmp_vel[1] += -2*entity_vy
-
-    #         # then update after we've checked everything. 
-    #         entity.state.p_pos += tmp_pos
-    #         entity.state.p_vel += tmp_vel
-
-
 
     # TODO: handle the case where entities can collide with other entities
     def handle_wall_collision(self):
