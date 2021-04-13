@@ -81,7 +81,7 @@ class SingleActionPolicy(Policy):
         if move == 0 or self.has_acted:
             u[0] += 1.0  # set the "not move" flag to True
         elif move == 1:
-            u[1:] = np.random.random(4)*0.1  # sample a random force in the four cardinal directions
+            u[1:] = np.random.random(4)#*0.1  # sample a random force in the four cardinal directions
             self.has_acted = True
         else:
             assert False
