@@ -46,7 +46,7 @@ class PygameRenderer():
         #     (self.screen_width, self.screen_height), 0, 32)
 
     def reset(self):
-        self.screen = pygame.display.set_mode(
+       self.screen = pygame.display.set_mode(
             (self.screen_width, self.screen_height), 0, 32)
 
     def convert_color(self, color):
