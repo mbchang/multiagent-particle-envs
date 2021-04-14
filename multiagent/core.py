@@ -299,7 +299,7 @@ class BoxWorld(World):
     def __init__(self):
         World.__init__(self)
         # physical damping override
-        self.damping = 0
+        # self.damping = 0
         self.boundaries = Boundaries(left=-1, top=1, right=1, bottom=-1)
 
     # update state of the world
@@ -350,6 +350,7 @@ class BoxWorld(World):
             assert not (left_protruded and right_protruded)
             assert not (bottom_protruded and top_protruded)
 
+            # you could add some damping here actually
             if left_protruded or right_protruded:
                 tmp_vel[0] += -2*entity_vx
 
