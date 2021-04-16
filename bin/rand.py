@@ -22,8 +22,8 @@ if __name__ == '__main__':
     # render call to create viewer window (necessary only for interactive policies)
     env.render()
     # create interactive policies for each agent
-    # policies = [RandomPolicy(env) for i in range(env.n)]
-    policies = [SingleActionPolicy(env) for i in range(env.n)]
+    policies = [RandomPolicy(env) for i in range(env.n)]
+    # policies = [SingleActionPolicy(env) for i in range(env.n)]
     # execution loop
     obs_n = env.reset()
     while True:
