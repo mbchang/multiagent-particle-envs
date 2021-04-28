@@ -23,57 +23,8 @@ class Scenario(BaseScenario):
         self.reset_world(world)
         return world
 
-    # def reset_world(self, world):
-    #     # random properties for agents
-    #     for i, agent in enumerate(world.agents):
-    #         agent.color = np.array([1.,1.,1.])
-    #     # random properties for landmarks
-    #     # for i, landmark in enumerate(world.landmarks):
-    #     #     landmark.color = np.array([0.25,0.75,0.25])
-    #     world.landmarks[0].color = np.array([0.75,0.25,0.25])
-    #     world.landmarks[1].color = np.array([0.25,0.75,0.25])
-    #     world.landmarks[2].color = np.array([0.25,0.25,0.75])
-
-    #     def set_state(entity, p_pos):
-    #         entity.state.p_pos = p_pos
-    #         entity.state.p_vel = np.random.uniform(low=0.1, high=0.2, size=(world.dim_p,))#np.zeros(world.dim_p)
-    #         if isinstance(entity, Agent):
-    #             entity.state.c = np.zeros(world.dim_c)
-
-    #     def has_overlap(p_pos, size, other_entity):
-    #         if other_entity.state.p_pos is None:
-    #             return False
-    #         else:
-    #             delta_pos = p_pos - other_entity.state.p_pos
-    #             dist = np.sqrt(np.sum(np.square(delta_pos)))
-    #             does_overlap = dist <= (size + other_entity.size)
-    #             return does_overlap
-
-    #     def sample_safe_state(entity, entities):
-    #         potential_pos = np.random.uniform(-0.5,+0.5, world.dim_p)
-    #         while any(has_overlap(potential_pos, entity.size, other_entity) for other_entity in entities):
-    #             potential_pos = np.random.uniform(-0.5,+0.5, world.dim_p)
-    #         set_state(entity, potential_pos)
-
-    #     def sample_all_states(world):
-    #         entities = world.agents + world.landmarks
-    #         for agent in world.agents:
-    #             sample_safe_state(agent, entities)
-
-    #         for i, landmark in enumerate(world.landmarks):
-    #             sample_safe_state(landmark, entities)
-
-    #     # set random initial states
-    #     # entities = world.agents + world.landmarks
-    #     # for agent in world.agents:
-    #     #     sample_safe_state(agent, entities)
-
-    #     # for i, landmark in enumerate(world.landmarks):
-    #     #     sample_safe_state(landmark, entities)
-    #     sample_all_states(world)
-
-
     def reset_world(self, world):
+        # print('RESET')
         # random properties for agents
         for i, agent in enumerate(world.agents):
             agent.color = np.array([1.,1.,1.])
@@ -86,7 +37,7 @@ class Scenario(BaseScenario):
 
         def set_state(entity, p_pos):
             entity.state.p_pos = p_pos
-            entity.state.p_vel = np.random.uniform(low=0.1, high=0.2, size=(world.dim_p,))#np.zeros(world.dim_p)
+            entity.state.p_vel = np.random.uniform(low=0.1, high=0.2, size=(world.dim_p,))
             if isinstance(entity, Agent):
                 entity.state.c = np.zeros(world.dim_c)
 
@@ -102,8 +53,10 @@ class Scenario(BaseScenario):
         def sample_safe_state(entity, entities, t0):
             potential_pos = np.random.uniform(-0.5,+0.5, world.dim_p)
             while any(has_overlap(potential_pos, entity.size, other_entity) for other_entity in entities):
+                # print('TRY AGAIN', time.time() - t0)
                 potential_pos = np.random.uniform(-0.5,+0.5, world.dim_p)
                 if time.time() - t0 > 5:
+                    # print('TIMED OUT')
                     return True
             set_state(entity, potential_pos)
             return False
@@ -121,6 +74,13 @@ class Scenario(BaseScenario):
                     return True
             return False
 
+        num_tries = 50
+        for i in range(num_tries):
+            t0 = time.time()
+            timed_out = sample_all_states(world, t0)
+            if not timed_out:
+                break
+
         # set random initial states
         # entities = world.agents + world.landmarks
         # for agent in world.agents:
@@ -128,12 +88,7 @@ class Scenario(BaseScenario):
 
         # for i, landmark in enumerate(world.landmarks):
         #     sample_safe_state(landmark, entities)
-        num_tries = 50
-        for i in range(num_tries):
-            t0 = time.time()
-            timed_out = sample_all_states(world, t0)
-            if not timed_out:
-                break
+
 
 
 
