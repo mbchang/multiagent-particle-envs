@@ -299,7 +299,7 @@ class BoxWorld(World):
     def __init__(self):
         World.__init__(self)
         # physical damping override
-        # self.damping = 0
+        # self.damping = 5e-3
         self.boundaries = Boundaries(left=-1, top=1, right=1, bottom=-1)
 
     # update state of the world
@@ -364,5 +364,9 @@ class BoxWorld(World):
             entity.state.p_pos += tmp_pos
             entity.state.p_vel += tmp_vel
 
+class SlipperyBoxWorld(BoxWorld):
+    def __init__(self):
+        BoxWorld.__init__(self)
+        self.damping = 5e-3
 
 
