@@ -10,19 +10,12 @@ from multiagent.scenario import BaseScenario
 class Scenario(BaseScenario):
     def make_world(self):
         world = CollideFrictionlessBoxWorld()
-        # add agents
-        # world.agents = [Agent() for i in range(1)]
-        # for i, agent in enumerate(world.agents):
-        #     agent.name = 'agent %d' % i
-        #     agent.collide = False
-        #     agent.silent = True
         # add landmarks
         world.landmarks = [Landmark() for i in range(4)]
         for i, landmark in enumerate(world.landmarks):
             landmark.name = 'landmark %d' % i
             landmark.collide = True
             landmark.movable = True
-        # world.landmarks[0].movable = False  # target is not movable
         # make initial conditions
         self.reset_world(world)
         return world
@@ -65,12 +58,13 @@ class Scenario(BaseScenario):
             landmark = world.landmarks[landmark_index]
             other_landmarks = world.landmarks[:landmark_index] + world.landmarks[landmark_index+1:]
             timed_out = sample_safe_state(landmark, world.agents + other_landmarks, t0)
-            if not timed_out:
-                print('landmark_index', landmark_index)
+            # if not timed_out:
+            #     print('landmark_index', landmark_index)
             return timed_out
 
         num_tries = 50
-        for i in tqdm.tqdm(range(num_tries)):
+        # for i in tqdm.tqdm(range(num_tries)):
+        for i in range(num_tries):
             t0 = time.time()
             timed_out = intervene_state(world, t0)
             if not timed_out:
@@ -80,23 +74,11 @@ class Scenario(BaseScenario):
 
         return world
 
-        # # landmark_index = 
-        # landmark = np.random.choice(world.landmarks)
-        # timed_out = sample_safe_state(landmark, entities)
-        # # sample a landmark
-
-        # sample_safe_state for that landmark
-
     def reset_world(self, world):
-        # print('RESET')
-        # random properties for agents
-        # for i, agent in enumerate(world.agents):
-        #     agent.color = np.array([1.,1.,1.])
         # random properties for landmarks
         colors = plt.cm.rainbow(np.linspace(0,1,20))
         for i, landmark in enumerate(world.landmarks):
             landmark.color = colors[np.random.randint(len(colors))][:-1]
-        # world.landmarks[0].color = np.array([0.75,0.25,0.25])
 
         def set_state(entity, p_pos):
             entity.state.p_pos = p_pos
@@ -138,23 +120,14 @@ class Scenario(BaseScenario):
             return False
 
         num_tries = 50
-        for i in tqdm.tqdm(range(num_tries)):
+        # for i in tqdm.tqdm(range(num_tries)):
+        for i in range(num_tries):
             t0 = time.time()
             timed_out = sample_all_states(world, t0)
             if not timed_out:
                 break
         if i == num_tries-1:
             assert False, 'failed all {} tries'.format(num_tries)
-
-        # set random initial states
-        # entities = world.agents + world.landmarks
-        # for agent in world.agents:
-        #     sample_safe_state(agent, entities)
-
-        # for i, landmark in enumerate(world.landmarks):
-        #     sample_safe_state(landmark, entities)
-
-
 
 
     def reward(self, agent, world):

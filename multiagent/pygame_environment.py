@@ -50,12 +50,17 @@ class PygameRenderer():
             (self.screen_width, self.screen_height), 0, 32)
 
     def convert_color(self, color):
-        return list(color*255) + [1]  # assume full alpha
+        # print(color)
+        # print(list(color*255))
+        # return list(color*255) + [1]  # assume full alpha
+        return np.array(list(color*255) + [1]).astype(np.int)  # assume full alpha
 
     def convert_size(self, size):
         # this just works for circles at the moment, so rotationally symmetric
         assert self.screen_width == self.screen_height
-        return size * self.screen_width/2
+        # print(size)
+        # print(size * self.screen_width//2)
+        return int(size * self.screen_width/2)
 
     def convert_coords(self, x, y):
         # rotate clockwise 90
@@ -84,6 +89,9 @@ class PygameRenderer():
         pygame.draw.rect(self.screen, Color("black"), border)
         for entity in entities:
             rendered_entity = self.convert(entity)
+            # print('color', rendered_entity.color)
+            # print('pos', rendered_entity.pos)
+            # print('size', rendered_entity.size)
             pygame.draw.circle(self.screen, 
                 rendered_entity.color, 
                 rendered_entity.pos,
@@ -223,17 +231,34 @@ class PGMultiAgentEnv():
 
         return obs_n, reward_n, done_n, info_n
 
+    # def reset(self):
+    #     # reset world
+    #     self.reset_callback(self.world)
+    #     # reset renderer
+    #     self._reset_render()
+    #     # record observations for each agent
+    #     obs_n = []
+    #     self.agents = self.world.policy_agents
+    #     for agent in self.agents:
+    #         obs_n.append(self._get_obs(agent))
+    #     return obs_n
+
     def reset(self):
         # reset world
         self.reset_callback(self.world)
         # reset renderer
         self._reset_render()
         # record observations for each agent
+        obs_n = self.get_obs()
+        return obs_n
+
+    def get_obs(self):
         obs_n = []
         self.agents = self.world.policy_agents
         for agent in self.agents:
             obs_n.append(self._get_obs(agent))
         return obs_n
+
 
     def close(self):
         # for viewer in self.viewers:
