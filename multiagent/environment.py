@@ -111,6 +111,10 @@ class MultiAgentEnv(gym.Env):
         # reset renderer
         self._reset_render()
         # record observations for each agent
+        obs_n = self.get_obs()
+        return obs_n
+
+    def get_obs(self):
         obs_n = []
         self.agents = self.world.policy_agents
         for agent in self.agents:
