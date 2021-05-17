@@ -93,7 +93,6 @@ if __name__ == '__main__':
 
         # env.world = scenario.modify_world(env.world)
 
-
         # capture the state after reset, then modify
         obs_n = env.reset()
         modified_world = scenario.modify_world(env.world)
