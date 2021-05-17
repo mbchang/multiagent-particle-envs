@@ -33,7 +33,6 @@ class Scenario(BaseScenario):
         """
         world = copy.deepcopy(world)
 
-
         def set_state(entity, p_pos):
             entity.state.p_pos = p_pos
             entity.state.p_vel = np.random.uniform(low=0.1, high=0.2, size=(world.dim_p,)) * np.random.choice([-1, 1], size=(world.dim_p,))
