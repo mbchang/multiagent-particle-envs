@@ -1,5 +1,6 @@
 from collections import namedtuple
 import numpy as np
+import pprint
 
 # physical/external base state of all entites
 class EntityState(object):
@@ -8,6 +9,9 @@ class EntityState(object):
         self.p_pos = None
         # physical velocity
         self.p_vel = None
+
+    def __repr__(self):
+        return pprint.pformat(self.__dict__)
 
 # state of agents (including communication and internal/mental state)
 class AgentState(EntityState):
@@ -53,6 +57,9 @@ class Entity(object):
     @property
     def mass(self):
         return self.initial_mass
+
+    def __repr__(self):
+        return pprint.pformat(self.__dict__)
 
 # properties of landmark entities
 class Landmark(Entity):
@@ -131,6 +138,12 @@ class World(object):
     @property
     def scripted_agents(self):
         return [agent for agent in self.agents if agent.action_callback is not None]
+
+    def __repr__(self):
+        s = 'Agents: {}\nLandmarks: {}'.format(
+            '\t'.join(repr(agent) for agent in self.agents),
+            '\t'.join(repr(landmark) for landmark in self.landmarks))
+        return s
 
     # update state of the world
     def step(self):
@@ -300,6 +313,7 @@ class BoxWorld(World):
         World.__init__(self)
         # physical damping override
         # self.damping = 5e-3
+        self.allow_collisions = False
         self.boundaries = Boundaries(left=-1, top=1, right=1, bottom=-1)
 
     # update state of the world
@@ -325,7 +339,11 @@ class BoxWorld(World):
     def handle_wall_collision(self):
         for i, entity in enumerate(self.entities):
             # ok for now at least we just care about wall collisions, not entities colliding with each other
-            assert not entity.collide
+            if not self.allow_collisions:
+                assert not entity.collide
+            # commenting the above line out actually seems to be ok
+
+
             # also make sure that the diameter of the entity is not bigger than the box boundary
             assert 2 * entity.size < self.boundaries.right - self.boundaries.left
             assert 2 * entity.size < self.boundaries.top - self.boundaries.bottom
@@ -369,4 +387,15 @@ class SlipperyBoxWorld(BoxWorld):
         BoxWorld.__init__(self)
         self.damping = 5e-3
 
+class CollideSlipperyBoxWorld(BoxWorld):
+    def __init__(self):
+        BoxWorld.__init__(self)
+        self.damping = 5e-3
+        self.allow_collisions = True
+
+class CollideFrictionlessBoxWorld(BoxWorld):
+    def __init__(self):
+        BoxWorld.__init__(self)
+        self.damping = 0
+        self.allow_collisions = True
 
