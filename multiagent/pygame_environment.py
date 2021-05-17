@@ -50,9 +50,6 @@ class PygameRenderer():
             (self.screen_width, self.screen_height), 0, 32)
 
     def convert_color(self, color):
-        # print(color)
-        # print(list(color*255))
-        # return list(color*255) + [1]  # assume full alpha
         return np.array(list(color*255) + [1]).astype(np.int)  # assume full alpha
 
     def convert_size(self, size):
@@ -89,9 +86,6 @@ class PygameRenderer():
         pygame.draw.rect(self.screen, Color("black"), border)
         for entity in entities:
             rendered_entity = self.convert(entity)
-            # print('color', rendered_entity.color)
-            # print('pos', rendered_entity.pos)
-            # print('size', rendered_entity.size)
             pygame.draw.circle(self.screen, 
                 rendered_entity.color, 
                 rendered_entity.pos,
