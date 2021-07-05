@@ -11,12 +11,12 @@ class Scenario(BaseScenario):
     def make_world(self):
         world = CollideFrictionlessBoxWorld()
         # add landmarks
-        world.landmarks = [Agent() for i in range(4)]  # -> agent
-        for i, landmark in enumerate(world.landmarks):   # -> agent
-            landmark.name = 'landmark %d' % i   # -> agent
-            landmark.collide = True   # -> agent
-            landmark.movable = True   # -> agent
-            landmark.size = 0.15   # -> agent
+        world.agents = [Agent() for i in range(4)]  # -> agent
+        for i, agent in enumerate(world.agents):   # -> agent
+            agent.name = 'agent %d' % i   # -> agent
+            agent.collide = True   # -> agent
+            agent.movable = True   # -> agent
+            agent.size = 0.15   # -> agent
         # make initial conditions
         self.reset_world(world)
         return world
@@ -55,10 +55,10 @@ class Scenario(BaseScenario):
 
         # you don't actually want to actually modify the world state or set the state of the entity unless you actually have something. 
         def intervene_state(world, t0):
-            landmark_index = np.random.randint(len(world.landmarks))  # -> agent
-            landmark = world.landmarks[landmark_index]  # -> agent
-            other_landmarks = world.landmarks[:landmark_index] + world.landmarks[landmark_index+1:]  # -> agent
-            timed_out = sample_safe_state(landmark, world.agents + other_landmarks, t0)  # -> agent
+            agent_index = np.random.randint(len(world.agents))  # -> agent
+            agent = world.agents[agent_index]  # -> agent
+            other_agents = world.agents[:agent_index] + world.agents[agent_index+1:]  # -> agent
+            timed_out = sample_safe_state(agent, world.landmarks + other_agents, t0)  # -> agent
             # if not timed_out:
             #     print('landmark_index', landmark_index)
             return timed_out
@@ -78,8 +78,8 @@ class Scenario(BaseScenario):
     def reset_world(self, world):
         # random properties for landmarks
         colors = plt.cm.rainbow(np.linspace(0,1,20))
-        for i, landmark in enumerate(world.landmarks):  # -> agent
-            landmark.color = colors[np.random.randint(len(colors))][:-1]  # -> agent
+        for i, agent in enumerate(world.agents):  # -> agent
+            agent.color = colors[np.random.randint(len(colors))][:-1]  # -> agent
 
         def set_state(entity, p_pos):
             entity.state.p_pos = p_pos
@@ -108,14 +108,14 @@ class Scenario(BaseScenario):
             return False
 
         def sample_all_states(world, t0):
-            entities = world.agents + world.landmarks
-            for agent in world.agents:
+            entities = world.landmarks + world.agents
+            for landmark in world.landmarks:
                 timed_out = sample_safe_state(agent, entities, t0)
                 if timed_out:
                     return True
 
-            for i, landmark in enumerate(world.landmarks):
-                timed_out = sample_safe_state(landmark, entities, t0)
+            for i, agent in enumerate(world.agents):
+                timed_out = sample_safe_state(agent, entities, t0)
                 if timed_out:
                     return True
             return False
@@ -132,12 +132,12 @@ class Scenario(BaseScenario):
 
 
     def reward(self, agent, world):
-        dist2 = np.sum(np.square(agent.state.p_pos - world.landmarks[0].state.p_pos))
+        dist2 = np.sum(np.square(agent.state.p_pos - world.agents[0].state.p_pos))
         return -dist2
 
     def observation(self, agent, world):
         # get positions of all entities in this agent's reference frame
         entity_pos = []
-        for entity in world.landmarks:
+        for entity in world.agents:
             entity_pos.append(entity.state.p_pos - agent.state.p_pos)
         return np.concatenate([agent.state.p_vel] + entity_pos)
