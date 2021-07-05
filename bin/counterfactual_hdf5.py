@@ -5,6 +5,7 @@ import h5py
 import os
 import sys
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
+import time
 import torch
 import tqdm
 import argparse
@@ -36,6 +37,7 @@ if __name__ == '__main__':
     parser.add_argument('-s', '--scenario', default='simple.py', help='Path of the scenario Python script.')
     parser.add_argument('-n', '--num_episodes', type=int, default=20)
     parser.add_argument('-t', '--max_episode_length', type=int, default=10)
+    parser.add_argument('-i', '--interactive', action='store_true')
     args = parser.parse_args()
 
     if torch.cuda.is_available() and 'vdisplay' not in globals():
@@ -60,25 +62,36 @@ if __name__ == '__main__':
     # policies = [SingleActionPolicy(env) for i in range(env.n)]
     policies = [DoNothingPolicy(env) for i in range(env.n)]
 
-    def sample_episode(obs_n, env, policies, h5_data):
-        for t in range(T):
-            obs_n, act_n, reward_n, done_n = mr.episode_step(obs_n, env, policies, verbose=False)
-            h5_data[n, t] = render_hdf5(env)
 
-    data_root = 'hdf5_data'
     N = args.num_episodes
     T = args.max_episode_length
     H, W, C = 64, 64, 3
 
-    h5_file_before = os.path.join(data_root, '{}_n{}_t{}_ab.h5'.format(
-        os.path.splitext(os.path.basename(args.scenario))[0], N, T))
-    h5_before = h5py.File(h5_file_before, 'w')
-    data_before = h5_before.create_dataset('observations', (N, T, C, H, W), dtype='f')
+    if args.interactive:
+        data_before, data_after = None, None
+    else:
+        data_root = 'hdf5_data'
 
-    h5_file_after = os.path.join(data_root, '{}_n{}_t{}_cd.h5'.format(
-        os.path.splitext(os.path.basename(args.scenario))[0], N, T))
-    h5_after = h5py.File(h5_file_after, 'w')
-    data_after = h5_after.create_dataset('observations', (N, T, C, H, W), dtype='f')
+        h5_file_before = os.path.join(data_root, '{}_n{}_t{}_ab.h5'.format(
+            os.path.splitext(os.path.basename(args.scenario))[0], N, T))
+        h5_before = h5py.File(h5_file_before, 'w')
+        data_before = h5_before.create_dataset('observations', (N, T, C, H, W), dtype='f')
+
+        h5_file_after = os.path.join(data_root, '{}_n{}_t{}_cd.h5'.format(
+            os.path.splitext(os.path.basename(args.scenario))[0], N, T))
+        h5_after = h5py.File(h5_file_after, 'w')
+        data_after = h5_after.create_dataset('observations', (N, T, C, H, W), dtype='f')
+
+
+    def sample_episode(obs_n, env, policies, h5_data):
+        for t in range(T):
+            obs_n, act_n, reward_n, done_n = mr.episode_step(obs_n, env, policies, verbose=False)
+            if args.interactive:
+                print('t', t)
+                env.render()
+                time.sleep(0.2)
+            else:
+                h5_data[n, t] = render_hdf5(env)
 
 
     for n in tqdm.tqdm(range(N)):
