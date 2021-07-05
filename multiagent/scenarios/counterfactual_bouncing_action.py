@@ -54,7 +54,7 @@ class Scenario(BaseScenario):
             return False
 
         # you don't actually want to actually modify the world state or set the state of the entity unless you actually have something. 
-        def intervene_state(world, t0):
+        def displacement_intervention(world, t0):
             agent_index = np.random.randint(len(world.agents))  # -> agent
             agent = world.agents[agent_index]  # -> agent
             other_agents = world.agents[:agent_index] + world.agents[agent_index+1:]  # -> agent
@@ -63,11 +63,38 @@ class Scenario(BaseScenario):
             #     print('landmark_index', landmark_index)
             return timed_out
 
+        # you don't actually want to actually modify the world state or set the state of the entity unless you actually have something. 
+        def removal_intervention(world, t0):
+            raise NotImplementedError
+            agent_index = np.random.randint(len(world.agents))  # -> agent
+            agent = world.agents[agent_index]  # -> agent
+            other_agents = world.agents[:agent_index] + world.agents[agent_index+1:]  # -> agent
+            timed_out = sample_safe_state(agent, world.landmarks + other_agents, t0)  # -> agent
+            # if not timed_out:
+            #     print('landmark_index', landmark_index)
+            return timed_out
+
+
+
+        # you don't actually want to actually modify the world state or set the state of the entity unless you actually have something. 
+        def addition_intervention(world, t0):
+            raise NotImplementedError
+            agent_index = np.random.randint(len(world.agents))  # -> agent
+            agent = world.agents[agent_index]  # -> agent
+            other_agents = world.agents[:agent_index] + world.agents[agent_index+1:]  # -> agent
+            timed_out = sample_safe_state(agent, world.landmarks + other_agents, t0)  # -> agent
+            # if not timed_out:
+            #     print('landmark_index', landmark_index)
+            return timed_out
+
+
+
+
         num_tries = 50
         # for i in tqdm.tqdm(range(num_tries)):
         for i in range(num_tries):
             t0 = time.time()
-            timed_out = intervene_state(world, t0)
+            timed_out = displacement_intervention(world, t0)
             if not timed_out:
                 break
         if i == num_tries-1:
