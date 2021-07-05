@@ -12,13 +12,23 @@ import argparse
 # from multiagent.environment import MultiAgentEnv
 from multiagent.pygame_environment import PGMultiAgentEnv
 
-# from multiagent.policy import RandomPolicy, SingleActionPolicy
+from multiagent.policy import RandomPolicy, SingleActionPolicy, DoNothingPolicy
 import multiagent.scenarios as scenarios
+
+
+import modular_rand as mr
 
 """
     Stackpointer:
         allow the intervention to be at any time-step rather than only the first one
 """
+
+
+def render_hdf5(env):
+    frame = env.render(mode='rgb_array')[0]
+    frame = cv2.resize(frame, (H, W), interpolation=cv2.INTER_AREA)
+    return frame.transpose((2, 0, 1))
+
 
 if __name__ == '__main__':
     # parse arguments
@@ -46,28 +56,14 @@ if __name__ == '__main__':
     # render call to create viewer window (necessary only for interactive policies)
     env.render()
     # create interactive policies for each agent
-    policies = []#RandomPolicy(env) for i in range(env.n)]
+    # policies = []#RandomPolicy(env) for i in range(env.n)]
     # policies = [SingleActionPolicy(env) for i in range(env.n)]
+    policies = [DoNothingPolicy(env) for i in range(env.n)]
 
     def sample_episode(obs_n, env, policies, h5_data):
         for t in range(T):
-            # print(t)
-            # query for action from each agent's policy
-            act_n = []
-            for i, policy in enumerate(policies):
-                action = policy.action(obs_n[i])
-                act_n.append(action)
-            # step environment
-            obs_n, reward_n, done_n, _ = env.step(act_n)
-            # print('Obs: {} Act: {} Rew: {}'.format(obs_n, act_n, reward_n))
-            # render all agent views
-            frame = env.render(mode='rgb_array')[0]
-            frame = cv2.resize(frame, (H, W), interpolation=cv2.INTER_AREA)
-            # frame = frame.astype('float')/255
-            h5_data[n, t] = frame.transpose((2, 0, 1))
-            # display rewards
-            #for agent in env.world.agents:
-            #    print(agent.name + " reward: %0.3f" % env._get_reward(agent))
+            obs_n, act_n, reward_n, done_n = mr.episode_step(obs_n, env, policies, verbose=False)
+            h5_data[n, t] = render_hdf5(env)
 
     data_root = 'hdf5_data'
     N = args.num_episodes
@@ -109,3 +105,18 @@ if __name__ == '__main__':
 
 
 # CUDA_VISIBLE_DEVICES=1 DEVICE=:0 python bin/counterfactual_hdf5.py   --scenario counterfactual_bouncing.py --num_episodes 10000 --max_episode_length 25
+
+
+# actually we should be replacing the above command with: 
+# CUDA_VISIBLE_DEVICES=1 DEVICE=:0 python bin/counterfactual_hdf5.py   --scenario counterfactual_bouncing_action.py --num_episodes 10000 --max_episode_length 25
+
+
+
+"""
+Iteration
+    1. python bin/counterfactual_hdf5.py   --scenario counterfactual_bouncing_action.py --num_episodes 2 --max_episode_length 25
+    2. python convert_hdf5.py
+    3. compare images
+    4. rm -r counterfactual_bouncing_action_n2_t25_*
+
+"""
