@@ -2,6 +2,7 @@
 import copy
 import cv2
 import h5py
+import numpy as np
 import os
 import sys
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
@@ -30,6 +31,12 @@ def render_hdf5(env):
     frame = cv2.resize(frame, (H, W), interpolation=cv2.INTER_AREA)
     return frame.transpose((2, 0, 1))
 
+def create_env(world, scenario):
+    env = PGMultiAgentEnv(world, scenario.reset_world, scenario.reward, scenario.observation, info_callback=None, shared_viewer = True)
+    # render call to create viewer window (necessary only for interactive policies)
+    env.render()
+    return env
+
 
 if __name__ == '__main__':
     # parse arguments
@@ -38,7 +45,10 @@ if __name__ == '__main__':
     parser.add_argument('-n', '--num_episodes', type=int, default=20)
     parser.add_argument('-t', '--max_episode_length', type=int, default=10)
     parser.add_argument('-i', '--interactive', action='store_true')
+    parser.add_argument('--intervention_type', type=str, help='displacement | removal | addition | force')
+    parser.add_argument('-u', '--t_intervene', type=int, default=5)
     args = parser.parse_args()
+    assert args.t_intervene >= 0 and args.t_intervene <= args.max_episode_length
 
     if torch.cuda.is_available() and 'vdisplay' not in globals():
         # start a virtual X display for MAGICAL rendering
@@ -49,14 +59,14 @@ if __name__ == '__main__':
     # os.environ["SDL_VIDEODRIVER"] = "dummy"
 
 
+
     # load scenario from script
     scenario = scenarios.load(args.scenario).Scenario()
     # create world
     world = scenario.make_world()
     # create multiagent environment
-    env = PGMultiAgentEnv(world, scenario.reset_world, scenario.reward, scenario.observation, info_callback=None, shared_viewer = True)
-    # render call to create viewer window (necessary only for interactive policies)
-    env.render()
+    env = create_env(world, scenario)
+
     # create interactive policies for each agent
     # policies = []#RandomPolicy(env) for i in range(env.n)]
     # policies = [SingleActionPolicy(env) for i in range(env.n)]
@@ -72,19 +82,18 @@ if __name__ == '__main__':
     else:
         data_root = 'hdf5_data'
 
-        h5_file_before = os.path.join(data_root, '{}_n{}_t{}_ab.h5'.format(
-            os.path.splitext(os.path.basename(args.scenario))[0], N, T))
+        h5_file_before = os.path.join(data_root, '{}_{}_n{}_t{}_ab.h5'.format(
+            os.path.splitext(os.path.basename(args.scenario))[0], args.intervention_type, N, T))
         h5_before = h5py.File(h5_file_before, 'w')
         data_before = h5_before.create_dataset('observations', (N, T, C, H, W), dtype='f')
 
-        h5_file_after = os.path.join(data_root, '{}_n{}_t{}_cd.h5'.format(
-            os.path.splitext(os.path.basename(args.scenario))[0], N, T))
+        h5_file_after = os.path.join(data_root, '{}_{}_n{}_t{}_cd.h5'.format(
+            os.path.splitext(os.path.basename(args.scenario))[0], args.intervention_type, N, T))
         h5_after = h5py.File(h5_file_after, 'w')
         data_after = h5_after.create_dataset('observations', (N, T, C, H, W), dtype='f')
 
-
-    def sample_episode(obs_n, env, policies, h5_data):
-        for t in range(T):
+    def sample_episode(obs_n, env, policies, t_range, n, h5_data):
+        for t in t_range:
             obs_n, act_n, reward_n, done_n = mr.episode_step(obs_n, env, policies, verbose=False)
             if args.interactive:
                 print('t', t)
@@ -92,29 +101,39 @@ if __name__ == '__main__':
                 time.sleep(0.2)
             else:
                 h5_data[n, t] = render_hdf5(env)
+                print(np.max(h5_data[n, t]), np.min(h5_data[n, t]))
+        return obs_n
+
+    def counterfactual_displacement(t_intervene):
+        for n in tqdm.tqdm(range(N)):
+
+            # run original environment
+            obs_n = env.reset()
+            obs_n = sample_episode(obs_n, env, policies, range(t_intervene), n, data_before)
+
+            # maybe here you can copy the data from data_before to data_after
+            modified_world = scenario.modify_world(env.world, 
+                intervention_type=args.intervention_type)
+
+            # run original environment
+            sample_episode(obs_n, env, policies, range(t_intervene, T), n, data_before)
+            env.close()
+
+            # create new environment
+            modified_env = create_env(modified_world, scenario)
+            modified_obs_n = modified_env.get_obs()
+
+            # run modified_environment
+            sample_episode(modified_obs_n, modified_env, policies, range(t_intervene, T), n, data_after)
+            modified_env.close()
+
+        # copy the data from data_before to data_after, in bulk
+        if not args.interactive:
+            data_after[:, :t_intervene] = data_before[:, :t_intervene]
 
 
-    for n in tqdm.tqdm(range(N)):
-        # print(n)
+    eval('counterfactual_{}'.format(args.intervention_type))(t_intervene=args.t_intervene)
 
-        # capture the state after reset, then modify
-        obs_n = env.reset()
-        modified_world = scenario.modify_world(env.world)
-
-        # run original environment
-        # print('before')
-        sample_episode(obs_n, env, policies, data_before)
-        env.close()
-
-        # create new environment
-        modified_env = PGMultiAgentEnv(modified_world, scenario.reset_world, scenario.reward, scenario.observation, info_callback=None, shared_viewer = True)
-        modified_env.render()
-        modified_obs_n = modified_env.get_obs()
-
-        # run modified_environment
-        # print('after')
-        sample_episode(modified_obs_n, modified_env, policies, data_after)
-        modified_env.close()
 
 
 # CUDA_VISIBLE_DEVICES=1 DEVICE=:0 python bin/counterfactual_hdf5.py   --scenario counterfactual_bouncing.py --num_episodes 10000 --max_episode_length 25

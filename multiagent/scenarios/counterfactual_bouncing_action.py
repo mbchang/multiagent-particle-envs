@@ -21,7 +21,7 @@ class Scenario(BaseScenario):
         self.reset_world(world)
         return world
 
-    def modify_world(self, world):
+    def modify_world(self, world, intervention_type):
         """
             first makes a copy, modifies the copy, returns the copy
         """
@@ -87,14 +87,17 @@ class Scenario(BaseScenario):
             #     print('landmark_index', landmark_index)
             return timed_out
 
-
+        if intervention_type == 'displacement':
+            intervention = displacement_intervention
+        else:
+            raise NotImplementedError
 
 
         num_tries = 50
         # for i in tqdm.tqdm(range(num_tries)):
         for i in range(num_tries):
             t0 = time.time()
-            timed_out = displacement_intervention(world, t0)
+            timed_out = intervention(world, t0)
             if not timed_out:
                 break
         if i == num_tries-1:
