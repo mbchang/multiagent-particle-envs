@@ -69,6 +69,31 @@ class RandomPolicy(Policy):
         action = np.concatenate([u, np.zeros(self.env.world.dim_c)])
         return action
 
+    def do_nothing(self):
+        u = np.zeros(5)
+        action = np.concatenate([u, np.zeros(self.env.world.dim_c)])
+        return action
+
+class ForcefulRandomPolicy(RandomPolicy):
+    def action(self, obs):
+        u = np.zeros(5)
+        u[1:] = np.random.random(4)*2  # sample a random force in the four cardinal directions
+        action = np.concatenate([u, np.zeros(self.env.world.dim_c)])
+        return action
+
+
+class DoNothingPolicy(Policy):
+    def __init__(self, env):
+        super(DoNothingPolicy, self).__init__()
+        self.env = env
+
+    def action(self, obs):
+        u = np.zeros(5)
+        action = np.concatenate([u, np.zeros(self.env.world.dim_c)])
+        return action
+
+
+
 class SingleActionPolicy(Policy):
     def __init__(self, env):
         super(SingleActionPolicy, self).__init__()
