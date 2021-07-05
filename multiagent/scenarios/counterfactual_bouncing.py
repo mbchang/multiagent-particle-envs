@@ -16,6 +16,7 @@ class Scenario(BaseScenario):
             landmark.name = 'landmark %d' % i
             landmark.collide = True
             landmark.movable = True
+            landmark.size = 0.15
         # make initial conditions
         self.reset_world(world)
         return world
