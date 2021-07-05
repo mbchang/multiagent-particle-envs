@@ -121,7 +121,6 @@ class Scenario(BaseScenario):
             return False
 
         num_tries = 50
-        # for i in tqdm.tqdm(range(num_tries)):
         for i in range(num_tries):
             t0 = time.time()
             timed_out = sample_all_states(world, t0)
