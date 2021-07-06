@@ -235,11 +235,43 @@ class PGMultiAgentEnv():
         #     self.viewers = [None] * self.n
         self._reset_render()
 
+    # def step(self, action_n):
+    #     obs_n = []
+    #     reward_n = []
+    #     done_n = []
+    #     info_n = {'n': []}
+    #     self.agents = self.world.policy_agents
+    #     # # set action for each agent
+    #     # for i, agent in enumerate(self.agents):
+    #     #     self._set_action(action_n[i], agent, self.action_space[i])
+
+    #     # set action for each agent by id_num
+    #     for agent in self.agents:
+    #         self._set_action(action_n[agent.id_num], agent, self.action_space[agent.id_num])
+
+    #     # advance world state
+    #     self.world.step()
+    #     # record observation for each agent
+    #     for agent in self.agents:
+    #         obs_n.append(self._get_obs(agent))
+    #         reward_n.append(self._get_reward(agent))
+    #         done_n.append(self._get_done(agent))
+
+    #         info_n['n'].append(self._get_info(agent))
+
+    #     # all agents get total reward in cooperative case
+    #     reward = np.sum(reward_n)
+    #     if self.shared_reward:
+    #         reward_n = [reward] * self.n
+
+    #     return obs_n, reward_n, done_n, info_n
+
+    # add OrderedDict
     def step(self, action_n):
-        obs_n = []
-        reward_n = []
-        done_n = []
-        info_n = {'n': []}
+        obs_n = OrderedDict()
+        reward_n = OrderedDict()
+        done_n = OrderedDict()
+        info_n = {'n': OrderedDict()}
         self.agents = self.world.policy_agents
         # # set action for each agent
         # for i, agent in enumerate(self.agents):
@@ -253,16 +285,26 @@ class PGMultiAgentEnv():
         self.world.step()
         # record observation for each agent
         for agent in self.agents:
-            obs_n.append(self._get_obs(agent))
-            reward_n.append(self._get_reward(agent))
-            done_n.append(self._get_done(agent))
+            # obs_n.append(self._get_obs(agent))
+            # reward_n.append(self._get_reward(agent))
+            # done_n.append(self._get_done(agent))
 
-            info_n['n'].append(self._get_info(agent))
+            # info_n['n'].append(self._get_info(agent))
+
+            obs_n[agent.id_num] = self._get_obs(agent)
+            reward_n[agent.id_num] = self._get_reward(agent)
+            done_n[agent.id_num] = self._get_done(agent)
+
+            info_n['n'][agent.id_num] = self._get_info(agent)
 
         # all agents get total reward in cooperative case
-        reward = np.sum(reward_n)
+        # reward = np.sum(reward_n)
+        # if self.shared_reward:
+        #     reward_n = [reward] * self.n
+
+        reward = np.sum(list(reward_n.values()))
         if self.shared_reward:
-            reward_n = [reward] * self.n
+            reward_n = OrderedDict({agent.id_num: reward for agent in self.agents})
 
         return obs_n, reward_n, done_n, info_n
 
@@ -287,11 +329,20 @@ class PGMultiAgentEnv():
         obs_n = self.get_obs()
         return obs_n
 
+    # def get_obs(self):
+    #     obs_n = []
+    #     self.agents = self.world.policy_agents
+    #     for agent in self.agents:
+    #         obs_n.append(self._get_obs(agent))
+    #     return obs_n
+
+    # add OrderedDict
     def get_obs(self):
-        obs_n = []
+        obs_n = OrderedDict()
         self.agents = self.world.policy_agents
         for agent in self.agents:
-            obs_n.append(self._get_obs(agent))
+            obs_n[agent.id_num] = self._get_obs(agent)
+            # obs_n.append(self._get_obs(agent))
         return obs_n
 
 
@@ -584,6 +635,7 @@ class BatchMultiAgentEnv(gym.Env):
         return self.env_batch[0].observation_space
 
     def step(self, action_n, time):
+        raise NotImplementedError('need to make obs_n, reward_n, done_n, info_n OrderedDicts!')
         obs_n = []
         reward_n = []
         done_n = []
@@ -599,6 +651,7 @@ class BatchMultiAgentEnv(gym.Env):
         return obs_n, reward_n, done_n, info_n
 
     def reset(self):
+        raise NotImplementedError('need to make obs_n, reward_n, done_n, info_n OrderedDicts!')
         obs_n = []
         for env in self.env_batch:
             obs_n += env.reset()
