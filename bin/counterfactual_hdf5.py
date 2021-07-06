@@ -58,6 +58,8 @@ if __name__ == '__main__':
 
     # os.environ["SDL_VIDEODRIVER"] = "dummy"
 
+    notice = '#'*40 + '\nMake sure to check that the first two dimensions of the observation are position and the next two dimensions of the observation are velocity!\n' + '#'*40
+
 
 
     # load scenario from script
@@ -77,11 +79,23 @@ if __name__ == '__main__':
     policies = [policy_type(env, i) for i in [a.id_num for a in env.agents]]
 
     observed_action_space = 2*world.dim_p + 1 + world.dim_c
+    observed_state_space = 2*world.dim_p  # 2 for p_pos, 2 for p_vel
+    print(notice)
 
     N = args.num_episodes
     T = args.max_episode_length
     H, W, C = 64, 64, 3
     K = len(policies) + 1  # +1 because we might add another object
+
+    def assign_attributes(h5):
+        h5.attrs['N'] = N
+        h5.attrs['T'] = T
+        h5.attrs['K'] = K
+        h5.attrs['H'] = H
+        h5.attrs['W'] = W
+        h5.attrs['C'] = C
+        h5.attrs['observed_action_space'] = observed_action_space
+        h5.attrs['observed_state_space'] = observed_state_space
 
     if args.interactive:
         h5_before, h5_after = None, None
@@ -91,14 +105,24 @@ if __name__ == '__main__':
         h5_file_before = os.path.join(data_root, '{}_{}_n{}_t{}_ab.h5'.format(
             os.path.splitext(os.path.basename(args.scenario))[0], args.intervention_type, N, T))
         h5_before = h5py.File(h5_file_before, 'w')
+        assign_attributes(h5_before)
+
         obs_before = h5_before.create_dataset('observations', (N, T, C, H, W), dtype='f')
         act_before = h5_before.create_dataset('actions', (N, T, K, observed_action_space))
+        state_before = h5_before.create_dataset('states', (N, T, K, observed_state_space))
+
 
         h5_file_after = os.path.join(data_root, '{}_{}_n{}_t{}_cd.h5'.format(
             os.path.splitext(os.path.basename(args.scenario))[0], args.intervention_type, N, T))
         h5_after = h5py.File(h5_file_after, 'w')
+        assign_attributes(h5_after)
+        h5_after.attrs['intervene_step'] = args.t_intervene
+        h5_after.attrs['intervention_type'] = args.intervention_type
+
         obs_after = h5_after.create_dataset('observations', (N, T, C, H, W), dtype='f')
         act_after = h5_after.create_dataset('actions', (N, T, K, observed_action_space))
+        state_after = h5_after.create_dataset('states', (N, T, K, observed_state_space))
+
 
     # will do whatever the initialized policy will do
     def sample_episode(obs_n, env, policies, t_range, n, h5_data):
@@ -113,6 +137,7 @@ if __name__ == '__main__':
                 h5_data['observations'][n, t] = render_hdf5(env)
                 for policy in policies:
                     h5_data['actions'][n, t, policy.id_num] = act_n[policy.id_num]
+                    h5_data['states'][n, t, policy.id_num] = obs_n[policy.id_num][:observed_state_space]
 
         return obs_n
 
@@ -129,6 +154,7 @@ if __name__ == '__main__':
                 h5_data['observations'][n, t] = render_hdf5(env)
                 for policy in policies:
                     h5_data['actions'][n, t, policy.id_num] = act_n[policy.id_num]
+                    h5_data['states'][n, t, policy.id_num] = obs_n[policy.id_num][:observed_state_space]
         return obs_n
 
     # do whatever the policy does during t_intervene, otherwise do nothing
@@ -149,6 +175,7 @@ if __name__ == '__main__':
                 h5_data['observations'][n, t] = render_hdf5(env)
                 for policy in policies:
                     h5_data['actions'][n, t, policy.id_num] = act_n[policy.id_num]
+                    h5_data['states'][n, t, policy.id_num] = obs_n[policy.id_num][:observed_state_space]
         return obs_n
 
 
@@ -221,6 +248,9 @@ if __name__ == '__main__':
         counterfactual_with_force_intervention(t_intervene=args.t_intervene)
     else:
         counterfactual(t_intervene=args.t_intervene, intervention_type=args.intervention_type)
+
+    print(notice)
+
 
 # CUDA_VISIBLE_DEVICES=1 DEVICE=:0 python bin/counterfactual_hdf5.py   --scenario counterfactual_bouncing.py --num_episodes 10000 --max_episode_length 25
 

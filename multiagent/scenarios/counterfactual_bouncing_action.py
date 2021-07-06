@@ -179,9 +179,20 @@ class Scenario(BaseScenario):
         dist2 = np.sum(np.square(agent.state.p_pos - world.agents[0].state.p_pos))
         return -dist2
 
+    # def observation(self, agent, world):
+    #     # get positions of all entities in this agent's reference frame
+    #     entity_pos = []
+    #     for entity in world.agents:
+    #         entity_pos.append(entity.state.p_pos - agent.state.p_pos)
+    #     return np.concatenate([agent.state.p_vel] + entity_pos)
+
     def observation(self, agent, world):
         # get positions of all entities in this agent's reference frame
         entity_pos = []
         for entity in world.agents:
             entity_pos.append(entity.state.p_pos - agent.state.p_pos)
-        return np.concatenate([agent.state.p_vel] + entity_pos)
+
+        # first two dimensions are position
+        # second two dimensions are velocity
+        # rest are relative positions of other entities
+        return np.concatenate([agent.state.p_pos] + [agent.state.p_vel] + entity_pos)
