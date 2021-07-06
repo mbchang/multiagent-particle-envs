@@ -14,7 +14,7 @@ import argparse
 # from multiagent.environment import MultiAgentEnv
 from multiagent.pygame_environment import PGMultiAgentEnv
 
-from multiagent.policy import RandomPolicy, SingleActionPolicy, DoNothingPolicy
+from multiagent.policy import RandomPolicy, SingleActionPolicy, ForcefulRandomPolicy, DoNothingPolicy
 import multiagent.scenarios as scenarios
 
 
@@ -73,8 +73,8 @@ if __name__ == '__main__':
     # policies = [DoNothingPolicy(env) for i in range(env.n)]
     # policies = [DoNothingPolicy(env, i) for i in [a.id_num for a in env.agents]]
 
-
-    policies = [RandomPolicy(env, i) for i in [a.id_num for a in env.agents]]
+    policy_type = ForcefulRandomPolicy
+    policies = [policy_type(env, i) for i in [a.id_num for a in env.agents]]
 
     observed_action_space = 2*world.dim_p + 1 + world.dim_c
 
@@ -84,7 +84,7 @@ if __name__ == '__main__':
     K = len(policies) + 1  # +1 because we might add another object
 
     if args.interactive:
-        obs_before, obs_after = None, None
+        h5_before, h5_after = None, None
     else:
         data_root = 'hdf5_data'
 
@@ -131,39 +131,12 @@ if __name__ == '__main__':
                     h5_data['actions'][n, t, policy.id_num] = act_n[policy.id_num]
         return obs_n
 
-
-    # def random_intervention_episode_step(obs_n, env, policies, verbose=True):
-    #     # query for action from each agent's policy
-    #     act_n = OrderedDict()
-
-    #     agent_index = np.random.randint(len(policies))
-    #     for i, policy in enumerate(policies):
-    #         if i == agent_index:
-    #             action = policy.action(obs_n[i])
-    #         else:
-    #             action = policy.do_nothing()
-    #         act_n.append(action)
-
-
-    #     for i, policy in enumerate(policies):
-    #         action = policy.do_nothing()
-    #         act_n[policy.id_num] = action
-    #     # step environment
-    #     obs_n, reward_n, done_n, _ = env.step(act_n)
-    #     if verbose:
-    #         print('Obs: {} Act: {} Rew: {}'.format(obs_n, act_n, reward_n))
-    #     # display rewards
-    #     #for agent in env.world.agents:
-    #     #    print(agent.name + " reward: %0.3f" % env._get_reward(agent))
-    #     return obs_n, act_n, reward_n, done_n
-
-
     # do whatever the policy does during t_intervene, otherwise do nothing
-    def sample_episode_with_intervention(obs_n, env, policies, t_range, t_intervene, n, h5_data):
+    def sample_episode_with_force_intervention(obs_n, env, policies, t_range, t_intervene, n, h5_data):
         for t in t_range:
 
             if t == t_intervene:
-                obs_n, act_n, reward_n, done_n = random_intervention_episode_step(obs_n, env, policies, verbose=False)
+                obs_n, act_n, reward_n, done_n = mr.random_intervention_episode_step(obs_n, env, policies, verbose=False)
             else:
                 obs_n, act_n, reward_n, done_n = mr.do_nothing_episode_step(obs_n, env, policies, verbose=False)
 
@@ -203,7 +176,7 @@ if __name__ == '__main__':
                 if a.id_num in [p.id_num for p in policies]:
                     new_policies.append(policies[a.id_num])
                 else:
-                    new_policies.append(DoNothingPolicy(env, a.id_num))
+                    new_policies.append(policy_type(env, a.id_num))
 
             # run modified_environment
             sample_episode_do_nothing(modified_obs_n, modified_env, new_policies, range(t_intervene, T), n, h5_after)
@@ -215,9 +188,39 @@ if __name__ == '__main__':
             act_after[:, :t_intervene] = act_before[:, :t_intervene]
 
 
-    counterfactual(t_intervene=args.t_intervene, intervention_type=args.intervention_type)
+    def counterfactual_with_force_intervention(t_intervene):
+        for n in tqdm.tqdm(range(N)):
+
+            # run original environment
+            obs_n = env.reset()
+
+            # capture the environment here
+            modified_world = copy.deepcopy(env.world)
+
+            # run original environment
+            sample_episode_do_nothing(obs_n, env, policies, range(T), n, h5_before)
+            env.close()
+
+            # create new environment
+            modified_env = create_env(modified_world, scenario)
+            modified_obs_n = modified_env.get_obs()
+
+            new_policies = []
+            for a in modified_world.agents:
+                if a.id_num in [p.id_num for p in policies]:
+                    new_policies.append(policies[a.id_num])
+                else:
+                    new_policies.append(policy_type(env, a.id_num))  # this should be the type of policy in initialization
+
+            # run modified_environment
+            sample_episode_with_force_intervention(modified_obs_n, modified_env, new_policies, range(T), t_intervene, n, h5_after)
+            modified_env.close()
 
 
+    if args.intervention_type == 'force':
+        counterfactual_with_force_intervention(t_intervene=args.t_intervene)
+    else:
+        counterfactual(t_intervene=args.t_intervene, intervention_type=args.intervention_type)
 
 # CUDA_VISIBLE_DEVICES=1 DEVICE=:0 python bin/counterfactual_hdf5.py   --scenario counterfactual_bouncing.py --num_episodes 10000 --max_episode_length 25
 
