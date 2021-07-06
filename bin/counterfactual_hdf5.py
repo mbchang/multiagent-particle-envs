@@ -104,16 +104,18 @@ if __name__ == '__main__':
                 print(np.max(h5_data[n, t]), np.min(h5_data[n, t]))
         return obs_n
 
-    def counterfactual_displacement(t_intervene):
+    def counterfactual(t_intervene, intervention_type):
         for n in tqdm.tqdm(range(N)):
 
             # run original environment
             obs_n = env.reset()
             obs_n = sample_episode(obs_n, env, policies, range(t_intervene), n, data_before)
 
+            # print(len(env.world.agents), len(policies), [a.id_num for a in env.world.agents])
+
             # maybe here you can copy the data from data_before to data_after
             modified_world = scenario.modify_world(env.world, 
-                intervention_type=args.intervention_type)
+                intervention_type=intervention_type)
 
             # run original environment
             sample_episode(obs_n, env, policies, range(t_intervene, T), n, data_before)
@@ -122,9 +124,12 @@ if __name__ == '__main__':
             # create new environment
             modified_env = create_env(modified_world, scenario)
             modified_obs_n = modified_env.get_obs()
+            new_policies = [policies[i] for i in [a.id_num for a in modified_world.agents]]
+
+            # print(len(modified_env.world.agents), len(new_policies), [a.id_num for a in modified_env.world.agents])
 
             # run modified_environment
-            sample_episode(modified_obs_n, modified_env, policies, range(t_intervene, T), n, data_after)
+            sample_episode(modified_obs_n, modified_env, new_policies, range(t_intervene, T), n, data_after)
             modified_env.close()
 
         # copy the data from data_before to data_after, in bulk
@@ -132,7 +137,9 @@ if __name__ == '__main__':
             data_after[:, :t_intervene] = data_before[:, :t_intervene]
 
 
-    eval('counterfactual_{}'.format(args.intervention_type))(t_intervene=args.t_intervene)
+    # eval('counterfactual_{}'.format(args.intervention_type))(t_intervene=args.t_intervene)
+
+    counterfactual(t_intervene=args.t_intervene, intervention_type=args.intervention_type)
 
 
 

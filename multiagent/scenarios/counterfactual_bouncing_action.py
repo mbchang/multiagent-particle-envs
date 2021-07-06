@@ -4,14 +4,14 @@ import numpy as np
 import time
 import tqdm
 
-from multiagent.core import World, Agent, Landmark, BoxWorld, CollideFrictionlessBoxWorld
+from multiagent.core import World, Agent, NFAgent, Landmark, BoxWorld, CollideFrictionlessBoxWorld
 from multiagent.scenario import BaseScenario
 
 class Scenario(BaseScenario):
     def make_world(self):
         world = CollideFrictionlessBoxWorld()
         # add landmarks
-        world.agents = [Agent() for i in range(4)]  # -> agent
+        world.agents = [NFAgent(i) for i in range(4)]  # -> agent
         for i, agent in enumerate(world.agents):   # -> agent
             agent.name = 'agent %d' % i   # -> agent
             agent.collide = True   # -> agent
@@ -65,16 +65,10 @@ class Scenario(BaseScenario):
 
         # you don't actually want to actually modify the world state or set the state of the entity unless you actually have something. 
         def removal_intervention(world, t0):
-            raise NotImplementedError
             agent_index = np.random.randint(len(world.agents))  # -> agent
             agent = world.agents[agent_index]  # -> agent
-            other_agents = world.agents[:agent_index] + world.agents[agent_index+1:]  # -> agent
-            timed_out = sample_safe_state(agent, world.landmarks + other_agents, t0)  # -> agent
-            # if not timed_out:
-            #     print('landmark_index', landmark_index)
-            return timed_out
-
-
+            del world.agents[agent_index]
+            return False
 
         # you don't actually want to actually modify the world state or set the state of the entity unless you actually have something. 
         def addition_intervention(world, t0):
@@ -89,6 +83,8 @@ class Scenario(BaseScenario):
 
         if intervention_type == 'displacement':
             intervention = displacement_intervention
+        elif intervention_type == 'removal':
+            intervention = removal_intervention
         else:
             raise NotImplementedError
 

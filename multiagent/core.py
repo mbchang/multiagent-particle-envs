@@ -104,6 +104,14 @@ class Spaceship(Agent):
         self.collide = True
         self.attractive = True
 
+# non-fungible agent
+class NFAgent(Agent):
+    def __init__(self, id_num):
+        Agent.__init__(self)
+        self.id_num = id_num
+
+
+
 # multi-agent world
 class World(object):
     def __init__(self):
