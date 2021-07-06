@@ -100,6 +100,7 @@ if __name__ == '__main__':
         obs_after = h5_after.create_dataset('observations', (N, T, C, H, W), dtype='f')
         act_after = h5_after.create_dataset('actions', (N, T, K, observed_action_space))
 
+    # will do whatever the initialized policy will do
     def sample_episode(obs_n, env, policies, t_range, n, h5_data):
         for t in t_range:
             obs_n, act_n, reward_n, done_n = mr.episode_step(obs_n, env, policies, verbose=False)
@@ -110,26 +111,87 @@ if __name__ == '__main__':
                 time.sleep(0.2)
             else:
                 h5_data['observations'][n, t] = render_hdf5(env)
-                print(act_n)
                 for policy in policies:
                     h5_data['actions'][n, t, policy.id_num] = act_n[policy.id_num]
-                    print(act_n[policy.id_num])
 
         return obs_n
+
+    # no matter what policy you initialize with, you will still do nothing
+    def sample_episode_do_nothing(obs_n, env, policies, t_range, n, h5_data):
+        for t in t_range:
+            obs_n, act_n, reward_n, done_n = mr.do_nothing_episode_step(obs_n, env, policies, verbose=False)
+            # the action should have two components: a_which, a_how
+            if args.interactive:
+                print('t', t)
+                env.render()
+                time.sleep(0.2)
+            else:
+                h5_data['observations'][n, t] = render_hdf5(env)
+                for policy in policies:
+                    h5_data['actions'][n, t, policy.id_num] = act_n[policy.id_num]
+        return obs_n
+
+
+    # def random_intervention_episode_step(obs_n, env, policies, verbose=True):
+    #     # query for action from each agent's policy
+    #     act_n = OrderedDict()
+
+    #     agent_index = np.random.randint(len(policies))
+    #     for i, policy in enumerate(policies):
+    #         if i == agent_index:
+    #             action = policy.action(obs_n[i])
+    #         else:
+    #             action = policy.do_nothing()
+    #         act_n.append(action)
+
+
+    #     for i, policy in enumerate(policies):
+    #         action = policy.do_nothing()
+    #         act_n[policy.id_num] = action
+    #     # step environment
+    #     obs_n, reward_n, done_n, _ = env.step(act_n)
+    #     if verbose:
+    #         print('Obs: {} Act: {} Rew: {}'.format(obs_n, act_n, reward_n))
+    #     # display rewards
+    #     #for agent in env.world.agents:
+    #     #    print(agent.name + " reward: %0.3f" % env._get_reward(agent))
+    #     return obs_n, act_n, reward_n, done_n
+
+
+    # do whatever the policy does during t_intervene, otherwise do nothing
+    def sample_episode_with_intervention(obs_n, env, policies, t_range, t_intervene, n, h5_data):
+        for t in t_range:
+
+            if t == t_intervene:
+                obs_n, act_n, reward_n, done_n = random_intervention_episode_step(obs_n, env, policies, verbose=False)
+            else:
+                obs_n, act_n, reward_n, done_n = mr.do_nothing_episode_step(obs_n, env, policies, verbose=False)
+
+            # the action should have two components: a_which, a_how
+            if args.interactive:
+                print('t', t)
+                env.render()
+                time.sleep(0.2)
+            else:
+                h5_data['observations'][n, t] = render_hdf5(env)
+                for policy in policies:
+                    h5_data['actions'][n, t, policy.id_num] = act_n[policy.id_num]
+        return obs_n
+
 
     def counterfactual(t_intervene, intervention_type):
         for n in tqdm.tqdm(range(N)):
 
             # run original environment
             obs_n = env.reset()
-            obs_n = sample_episode(obs_n, env, policies, range(t_intervene), n, h5_before)
+            obs_n = sample_episode_do_nothing(obs_n, env, policies, range(t_intervene), n, h5_before)
 
             # maybe here you can copy the data from obs_before to obs_after
             modified_world = scenario.modify_world(env.world, 
                 intervention_type=intervention_type)
 
             # run original environment
-            sample_episode(obs_n, env, policies, range(t_intervene, T), n, h5_before)
+            sample_episode_do_nothing(obs_n, env, policies, range(t_intervene, T), n, h5_before)
             env.close()
 
             # create new environment
@@ -144,7 +206,7 @@ if __name__ == '__main__':
                     new_policies.append(DoNothingPolicy(env, a.id_num))
 
             # run modified_environment
-            sample_episode(modified_obs_n, modified_env, new_policies, range(t_intervene, T), n, h5_after)
+            sample_episode_do_nothing(modified_obs_n, modified_env, new_policies, range(t_intervene, T), n, h5_after)
             modified_env.close()
 
         # copy the data from obs_before to obs_after, in bulk

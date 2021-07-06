@@ -13,6 +13,11 @@ class NFPolicy(Policy):
     def __init__(self, id_num):
         self.id_num = id_num
 
+    def do_nothing(self):
+        u = np.zeros(5)
+        action = np.concatenate([u, np.zeros(self.env.world.dim_c)])
+        return action
+
 # interactive policy based on keyboard input
 # hard-coded to deal only with movement, not communication
 class InteractivePolicy(NFPolicy):
@@ -74,10 +79,10 @@ class RandomPolicy(NFPolicy):
         action = np.concatenate([u, np.zeros(self.env.world.dim_c)])
         return action
 
-    def do_nothing(self):
-        u = np.zeros(5)
-        action = np.concatenate([u, np.zeros(self.env.world.dim_c)])
-        return action
+    # def do_nothing(self):
+    #     u = np.zeros(5)
+    #     action = np.concatenate([u, np.zeros(self.env.world.dim_c)])
+    #     return action
 
 class ForcefulRandomPolicy(RandomPolicy):
     def action(self, obs):
@@ -93,9 +98,10 @@ class DoNothingPolicy(NFPolicy):
         self.env = env
 
     def action(self, obs):
-        u = np.zeros(5)
-        action = np.concatenate([u, np.zeros(self.env.world.dim_c)])
-        return action
+        return self.do_nothing()
+        # u = np.zeros(5)
+        # action = np.concatenate([u, np.zeros(self.env.world.dim_c)])
+        # return action
 
 class SingleActionPolicy(NFPolicy):
     def __init__(self, env, id_num):
