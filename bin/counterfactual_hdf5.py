@@ -104,7 +104,6 @@ if __name__ == '__main__':
         for t in t_range:
             obs_n, act_n, reward_n, done_n = mr.episode_step(obs_n, env, policies, verbose=False)
             # the action should have two components: a_which, a_how
-            # assert False
             if args.interactive:
                 print('t', t)
                 env.render()
@@ -153,57 +152,6 @@ if __name__ == '__main__':
             obs_after[:, :t_intervene] = obs_before[:, :t_intervene]
             act_after[:, :t_intervene] = act_before[:, :t_intervene]
 
-
-    # def sample_episode(obs_n, env, policies, t_range, n, obs_data):
-    #     for t in t_range:
-    #         obs_n, act_n, reward_n, done_n = mr.episode_step(obs_n, env, policies, verbose=False)
-    #         # the action should have two components: a_which, a_how
-    #         # assert False
-    #         if args.interactive:
-    #             print('t', t)
-    #             env.render()
-    #             time.sleep(0.2)
-    #         else:
-    #             obs_data[n, t] = render_hdf5(env)
-    #             print(np.max(obs_data[n, t]), np.min(obs_data[n, t]))
-    #     return obs_n
-
-    # def counterfactual(t_intervene, intervention_type):
-    #     for n in tqdm.tqdm(range(N)):
-
-    #         # run original environment
-    #         obs_n = env.reset()
-    #         obs_n = sample_episode(obs_n, env, policies, range(t_intervene), n, obs_before)
-
-    #         # maybe here you can copy the data from obs_before to obs_after
-    #         modified_world = scenario.modify_world(env.world, 
-    #             intervention_type=intervention_type)
-
-    #         # run original environment
-    #         sample_episode(obs_n, env, policies, range(t_intervene, T), n, obs_before)
-    #         env.close()
-
-    #         # create new environment
-    #         modified_env = create_env(modified_world, scenario)
-    #         modified_obs_n = modified_env.get_obs()
-
-    #         new_policies = []
-    #         for a in modified_world.agents:
-    #             if a.id_num in [p.id_num for p in policies]:
-    #                 new_policies.append(policies[a.id_num])
-    #             else:
-    #                 new_policies.append(DoNothingPolicy(env, a.id_num))
-
-    #         # run modified_environment
-    #         sample_episode(modified_obs_n, modified_env, new_policies, range(t_intervene, T), n, obs_after)
-    #         modified_env.close()
-
-    #     # copy the data from obs_before to obs_after, in bulk
-    #     if not args.interactive:
-    #         obs_after[:, :t_intervene] = obs_before[:, :t_intervene]
-
-
-    # eval('counterfactual_{}'.format(args.intervention_type))(t_intervene=args.t_intervene)
 
     counterfactual(t_intervene=args.t_intervene, intervention_type=args.intervention_type)
 
