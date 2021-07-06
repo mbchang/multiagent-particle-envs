@@ -2,6 +2,7 @@
 import os,sys
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 import argparse
+from collections import OrderedDict
 
 from multiagent.environment import MultiAgentEnv
 from multiagent.policy import RandomPolicy, SingleActionPolicy
@@ -9,12 +10,31 @@ import multiagent.scenarios as scenarios
 
 
 
+# def episode_step(obs_n, env, policies, verbose=True):
+#     # query for action from each agent's policy
+#     act_n = []
+#     for i, policy in enumerate(policies):
+#         action = policy.action(obs_n[i])
+#         act_n.append(action)
+#     # step environment
+#     obs_n, reward_n, done_n, _ = env.step(act_n)
+#     if verbose:
+#         print('Obs: {} Act: {} Rew: {}'.format(obs_n, act_n, reward_n))
+#     # display rewards
+#     #for agent in env.world.agents:
+#     #    print(agent.name + " reward: %0.3f" % env._get_reward(agent))
+#     return obs_n, act_n, reward_n, done_n
+
+
+
+
 def episode_step(obs_n, env, policies, verbose=True):
     # query for action from each agent's policy
-    act_n = []
+    act_n = OrderedDict()
     for i, policy in enumerate(policies):
         action = policy.action(obs_n[i])
-        act_n.append(action)
+        # act_n.append(action)
+        act_n[policy.id_num] = action
     # step environment
     obs_n, reward_n, done_n, _ = env.step(act_n)
     if verbose:
