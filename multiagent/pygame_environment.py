@@ -123,8 +123,6 @@ class PGMultiAgentEnv():
                  observation_callback=None, info_callback=None,
                  done_callback=None, shared_viewer=True):
 
-        # assert False
-
         self.world = world
         self.agents = self.world.policy_agents
         # set required vectorized gym env property

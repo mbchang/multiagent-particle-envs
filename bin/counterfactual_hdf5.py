@@ -70,7 +70,8 @@ if __name__ == '__main__':
     # create interactive policies for each agent
     # policies = []#RandomPolicy(env) for i in range(env.n)]
     # policies = [SingleActionPolicy(env) for i in range(env.n)]
-    policies = [DoNothingPolicy(env) for i in range(env.n)]
+    # policies = [DoNothingPolicy(env) for i in range(env.n)]
+    policies = [DoNothingPolicy(env, i) for i in [a.id_num for a in env.agents]]
 
 
     N = args.num_episodes
@@ -111,8 +112,6 @@ if __name__ == '__main__':
             obs_n = env.reset()
             obs_n = sample_episode(obs_n, env, policies, range(t_intervene), n, data_before)
 
-            # print(len(env.world.agents), len(policies), [a.id_num for a in env.world.agents])
-
             # maybe here you can copy the data from data_before to data_after
             modified_world = scenario.modify_world(env.world, 
                 intervention_type=intervention_type)
@@ -124,9 +123,13 @@ if __name__ == '__main__':
             # create new environment
             modified_env = create_env(modified_world, scenario)
             modified_obs_n = modified_env.get_obs()
-            new_policies = [policies[i] for i in [a.id_num for a in modified_world.agents]]
 
-            # print(len(modified_env.world.agents), len(new_policies), [a.id_num for a in modified_env.world.agents])
+            new_policies = []
+            for a in modified_world.agents:
+                if a.id_num in [p.id_num for p in policies]:
+                    new_policies.append(policies[a.id_num])
+                else:
+                    new_policies.append(DoNothingPolicy(env, a.id_num))
 
             # run modified_environment
             sample_episode(modified_obs_n, modified_env, new_policies, range(t_intervene, T), n, data_after)

@@ -8,11 +8,16 @@ class Policy(object):
     def action(self, obs):
         raise NotImplementedError()
 
+# non-fungible policy
+class NFPolicy(Policy):
+    def __init__(self, id_num):
+        self.id_num = id_num
+
 # interactive policy based on keyboard input
 # hard-coded to deal only with movement, not communication
-class InteractivePolicy(Policy):
+class InteractivePolicy(NFPolicy):
     def __init__(self, env, agent_index):
-        super(InteractivePolicy, self).__init__()
+        super(InteractivePolicy, self).__init__(agent_index)
         self.env = env
         # hard-coded keyboard events
         self.move = [False for i in range(4)]
@@ -52,9 +57,9 @@ class InteractivePolicy(Policy):
         if k==key.UP:    self.move[2] = False
         if k==key.DOWN:  self.move[3] = False
 
-class RandomPolicy(Policy):
-    def __init__(self, env):
-        super(RandomPolicy, self).__init__()
+class RandomPolicy(NFPolicy):
+    def __init__(self, env, id_num):
+        super(RandomPolicy, self).__init__(id_num)
         self.env = env
 
     def action(self, obs):
@@ -82,9 +87,9 @@ class ForcefulRandomPolicy(RandomPolicy):
         return action
 
 
-class DoNothingPolicy(Policy):
-    def __init__(self, env):
-        super(DoNothingPolicy, self).__init__()
+class DoNothingPolicy(NFPolicy):
+    def __init__(self, env, id_num):
+        super(DoNothingPolicy, self).__init__(id_num)
         self.env = env
 
     def action(self, obs):
@@ -92,11 +97,9 @@ class DoNothingPolicy(Policy):
         action = np.concatenate([u, np.zeros(self.env.world.dim_c)])
         return action
 
-
-
-class SingleActionPolicy(Policy):
-    def __init__(self, env):
-        super(SingleActionPolicy, self).__init__()
+class SingleActionPolicy(NFPolicy):
+    def __init__(self, env, id_num):
+        super(SingleActionPolicy, self).__init__(id_num)
         self.env = env
         self.has_acted = False
 

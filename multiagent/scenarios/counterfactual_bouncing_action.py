@@ -8,15 +8,24 @@ from multiagent.core import World, Agent, NFAgent, Landmark, BoxWorld, CollideFr
 from multiagent.scenario import BaseScenario
 
 class Scenario(BaseScenario):
+    colors = plt.cm.rainbow(np.linspace(0,1,20))
+
+    @staticmethod
+    def initialize_agent(agent):
+        agent.name = 'agent %d' % agent.id_num
+        agent.collide = True
+        agent.movable = True
+        agent.size = 0.15
+        agent.color = Scenario.colors[np.random.randint(len(Scenario.colors))][:-1]
+        return agent
+
+
     def make_world(self):
         world = CollideFrictionlessBoxWorld()
         # add landmarks
         world.agents = [NFAgent(i) for i in range(4)]  # -> agent
         for i, agent in enumerate(world.agents):   # -> agent
-            agent.name = 'agent %d' % i   # -> agent
-            agent.collide = True   # -> agent
-            agent.movable = True   # -> agent
-            agent.size = 0.15   # -> agent
+            self.initialize_agent(agent)
         # make initial conditions
         self.reset_world(world)
         return world
@@ -72,19 +81,29 @@ class Scenario(BaseScenario):
 
         # you don't actually want to actually modify the world state or set the state of the entity unless you actually have something. 
         def addition_intervention(world, t0):
-            raise NotImplementedError
-            agent_index = np.random.randint(len(world.agents))  # -> agent
-            agent = world.agents[agent_index]  # -> agent
-            other_agents = world.agents[:agent_index] + world.agents[agent_index+1:]  # -> agent
-            timed_out = sample_safe_state(agent, world.landmarks + other_agents, t0)  # -> agent
-            # if not timed_out:
-            #     print('landmark_index', landmark_index)
+            agent_index = max([a.id_num for a in world.agents]) + 1
+            new_agent = self.initialize_agent(NFAgent(agent_index))
+            other_agents = world.agents  # excluding the new_agent!
+            timed_out = sample_safe_state(new_agent, world.landmarks + other_agents, t0)
+            world.agents.append(new_agent)
             return timed_out
+
+            # world.agents.append(new_agent)
+            # raise NotImplementedError
+            # agent_index = np.random.randint(len(world.agents))  # -> agent
+            # agent = world.agents[agent_index]  # -> agent
+            # other_agents = world.agents[:agent_index] + world.agents[agent_index+1:]  # -> agent
+            # timed_out = sample_safe_state(agent, world.landmarks + other_agents, t0)  # -> agent
+            # # if not timed_out:
+            # #     print('landmark_index', landmark_index)
+            # return timed_out
 
         if intervention_type == 'displacement':
             intervention = displacement_intervention
         elif intervention_type == 'removal':
             intervention = removal_intervention
+        elif intervention_type == 'addition':
+            intervention = addition_intervention
         else:
             raise NotImplementedError
 
@@ -102,10 +121,10 @@ class Scenario(BaseScenario):
         return world
 
     def reset_world(self, world):
-        # random properties for landmarks
-        colors = plt.cm.rainbow(np.linspace(0,1,20))
-        for i, agent in enumerate(world.agents):  # -> agent
-            agent.color = colors[np.random.randint(len(colors))][:-1]  # -> agent
+        # # random properties for landmarks
+        # colors = plt.cm.rainbow(np.linspace(0,1,20))
+        # for i, agent in enumerate(world.agents):  # -> agent
+        #     agent.color = colors[np.random.randint(len(colors))][:-1]  # -> agent
 
         def set_state(entity, p_pos):
             entity.state.p_pos = p_pos
