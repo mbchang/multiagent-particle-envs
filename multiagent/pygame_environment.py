@@ -247,9 +247,9 @@ class PGMultiAgentEnv():
 
         # set action for each agent by id_num
         for agent in self.agents:
-            print(agent.id_num)
-            print('blah', action_n[agent.id_num])
-            print('yo', self.action_space[agent.id_num])
+            # print(agent.id_num)
+            # print('blah', action_n[agent.id_num])
+            # print('yo', self.action_space[agent.id_num])
             self._set_action(action_n[agent.id_num], agent, self.action_space[agent.id_num])
 
         # advance world state
