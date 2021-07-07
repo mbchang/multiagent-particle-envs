@@ -525,7 +525,7 @@ class PGMultiAgentEnv():
                     else:
                         word = alphabet[np.argmax(other.state.c)]
                     message += (other.name + ' to ' + agent.name + ': ' + word + '   ')
-            print(message)
+            # print(message)
 
         # for i in range(len(self.viewers)):
         #     # create viewers (if necessary)

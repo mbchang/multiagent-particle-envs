@@ -11,6 +11,15 @@ import torch
 import tqdm
 import argparse
 
+
+
+
+if torch.cuda.is_available() and 'vdisplay' not in globals():
+    # start a virtual X display for MAGICAL rendering
+    import xvfbwrapper
+    vdisplay = xvfbwrapper.Xvfb()
+    vdisplay.start()
+
 # from multiagent.environment import MultiAgentEnv
 from multiagent.pygame_environment import PGMultiAgentEnv
 
@@ -47,14 +56,15 @@ if __name__ == '__main__':
     parser.add_argument('-i', '--interactive', action='store_true')
     parser.add_argument('--intervention_type', type=str, help='displacement | removal | addition | force')
     parser.add_argument('-u', '--t_intervene', type=int, default=5)
+    parser.add_argument('--data_root', type=str, default='')
     args = parser.parse_args()
     assert args.t_intervene >= 0 and args.t_intervene <= args.max_episode_length
 
-    if torch.cuda.is_available() and 'vdisplay' not in globals():
-        # start a virtual X display for MAGICAL rendering
-        import xvfbwrapper
-        vdisplay = xvfbwrapper.Xvfb()
-        vdisplay.start()
+    # if torch.cuda.is_available() and 'vdisplay' not in globals():
+    #     # start a virtual X display for MAGICAL rendering
+    #     import xvfbwrapper
+    #     vdisplay = xvfbwrapper.Xvfb()
+    #     vdisplay.start()
 
     # os.environ["SDL_VIDEODRIVER"] = "dummy"
 
@@ -68,12 +78,6 @@ if __name__ == '__main__':
     world = scenario.make_world()
     # create multiagent environment
     env = create_env(world, scenario)
-
-    # create interactive policies for each agent
-    # policies = []#RandomPolicy(env) for i in range(env.n)]
-    # policies = [SingleActionPolicy(env) for i in range(env.n)]
-    # policies = [DoNothingPolicy(env) for i in range(env.n)]
-    # policies = [DoNothingPolicy(env, i) for i in [a.id_num for a in env.agents]]
 
     policy_type = ForcefulRandomPolicy
     policies = [policy_type(env, i) for i in [a.id_num for a in env.agents]]
@@ -100,7 +104,9 @@ if __name__ == '__main__':
     if args.interactive:
         h5_before, h5_after = None, None
     else:
-        data_root = 'hdf5_data'
+        data_root = 'hdf5_data/{}'.format(args.data_root)
+        if not os.path.exists(data_root):
+            os.mkdir(data_root)
 
         h5_file_before = os.path.join(data_root, '{}_{}_n{}_t{}_ab.h5'.format(
             os.path.splitext(os.path.basename(args.scenario))[0], args.intervention_type, N, T))
@@ -256,8 +262,7 @@ if __name__ == '__main__':
 
 
 # actually we should be replacing the above command with: 
-# CUDA_VISIBLE_DEVICES=1 DEVICE=:0 python bin/counterfactual_hdf5.py   --scenario counterfactual_bouncing_action.py --num_episodes 10000 --max_episode_length 25
-
+# CUDA_VISIBLE_DEVICES=1 DEVICE=:0 python bin/counterfactual_hdf5.py   --scenario intervenable_bouncing.py --num_episodes 2 --max_episode_length 10 --intervention_type force
 
 
 """
