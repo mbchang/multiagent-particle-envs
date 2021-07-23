@@ -98,6 +98,94 @@ class PygameRenderer():
         # x = x.transpose((2,0,1))
         return x
 
+
+
+    def render_with_masks(self, entities, target_size):
+
+
+
+        data = dict()
+
+
+
+        # should you start the screen here?
+        border = Rect(0, 0, self.screen_width, self.screen_height)
+        pygame.draw.rect(self.screen, Color("black"), border)
+        for entity in entities:
+            rendered_entity = self.convert(entity)
+            pygame.draw.circle(self.screen, 
+                rendered_entity.color, 
+                rendered_entity.pos,
+                rendered_entity.size)
+        pygame.display.flip()
+
+        x = pygame.surfarray.array3d(self.screen)
+        x = cv2.resize(x, target_size)
+        x = x.astype('float')/255
+        # x = x.transpose((2,0,1))
+
+
+        data['composite'] = x
+
+
+
+        # now draw the rgbs for each entity
+        for i, entity in enumerate(entities):
+            # should you start the screen here?
+            border = Rect(0, 0, self.screen_width, self.screen_height)
+            pygame.draw.rect(self.screen, Color("black"), border)
+
+            rendered_entity = self.convert(entity)
+
+            pygame.draw.circle(self.screen, 
+                rendered_entity.color, 
+                rendered_entity.pos,
+                rendered_entity.size)
+            pygame.display.flip()
+
+            x = pygame.surfarray.array3d(self.screen)
+            x = cv2.resize(x, target_size)
+            x = x.astype('float')/255
+            # x = x.transpose((2,0,1))
+
+            data['rgb{}'.format(i)] = x
+
+
+        # now draw the masks for each entity
+        for i, entity in enumerate(entities):
+            # should you start the screen here?
+            border = Rect(0, 0, self.screen_width, self.screen_height)
+            pygame.draw.rect(self.screen, Color("black"), border)
+
+            rendered_entity = self.convert(entity)
+
+            pygame.draw.circle(self.screen, 
+                Color("white"), 
+                rendered_entity.pos,
+                rendered_entity.size)
+            pygame.display.flip()
+
+            x = pygame.surfarray.array3d(self.screen)
+            x = cv2.resize(x, target_size)
+            x = x.astype('float')/255
+            # x = x.transpose((2,0,1))
+
+            data['m{}'.format(i)] = x
+
+
+
+
+        return data
+
+
+
+
+
+
+
+
+
+
     def close(self):
         pygame.display.quit()
         # pygame.quit()

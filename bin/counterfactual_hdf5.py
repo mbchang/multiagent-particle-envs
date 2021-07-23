@@ -108,8 +108,8 @@ if __name__ == '__main__':
         if not os.path.exists(data_root):
             os.mkdir(data_root)
 
-        h5_file_before = os.path.join(data_root, '{}_{}_n{}_t{}_ab.h5'.format(
-            os.path.splitext(os.path.basename(args.scenario))[0], args.intervention_type, N, T))
+        h5_file_before = os.path.join(data_root, '{}_{}_s{}_n{}_t{}_ab.h5'.format(
+            os.path.splitext(os.path.basename(args.scenario))[0], args.intervention_type, args.t_intervene, N, T))
         h5_before = h5py.File(h5_file_before, 'w')
         assign_attributes(h5_before)
 
@@ -118,8 +118,8 @@ if __name__ == '__main__':
         state_before = h5_before.create_dataset('states', (N, T, K, observed_state_space))
 
 
-        h5_file_after = os.path.join(data_root, '{}_{}_n{}_t{}_cd.h5'.format(
-            os.path.splitext(os.path.basename(args.scenario))[0], args.intervention_type, N, T))
+        h5_file_after = os.path.join(data_root, '{}_{}_s{}_n{}_t{}_cd.h5'.format(
+            os.path.splitext(os.path.basename(args.scenario))[0], args.intervention_type, args.t_intervene, N, T))
         h5_after = h5py.File(h5_file_after, 'w')
         assign_attributes(h5_after)
         h5_after.attrs['intervene_step'] = args.t_intervene
