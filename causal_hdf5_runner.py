@@ -194,6 +194,42 @@ def colors_geb_7_22_2021():
     r.add_flag('data_root', ['intervenable_bouncing_s2_t8_colors'])
     r.generate_commands(execute=args.for_real)
 
+def horizon20_geb_8_27_2021():
+    """
+        t = 20
+    """
+    r = RunnerWithIDs(command='python bin/counterfactual_hdf5.py   --scenario intervenable_bouncing.py', gpus=[])
+    r.add_flag('num_episodes', ['1000'])
+    r.add_flag('max_episode_length', ['20'])
+    r.add_flag('t_intervene', ['5'])
+    r.add_flag('intervention_type', ['displacement', 'addition', 'removal', 'force'])
+    r.add_flag('data_root', ['intervenable_bouncing_s5_t20_colors'])
+    r.generate_commands(execute=args.for_real)
+
+def horizon20_geb_8_27_2021():
+    """
+        t = 20
+    """
+    r = RunnerWithIDs(command='python bin/counterfactual_hdf5.py   --scenario intervenable_bouncing.py', gpus=[])
+    r.add_flag('num_episodes', ['1000'])
+    r.add_flag('max_episode_length', ['20'])
+    r.add_flag('t_intervene', ['5'])
+    r.add_flag('intervention_type', ['displacement', 'addition', 'removal', 'force'])
+    r.add_flag('data_root', ['intervenable_bouncing_s5_t20_colors'])
+    r.generate_commands(execute=args.for_real)
+
+def horizon20_baobab_8_27_2021():
+    """
+        t = 20
+    """
+    r = RunnerWithIDs(command='python bin/counterfactual_hdf5.py   --scenario intervenable_bouncing.py', gpus=[])
+    r.add_flag('num_episodes', ['10'])
+    r.add_flag('max_episode_length', ['20'])
+    r.add_flag('t_intervene', ['5'])
+    r.add_flag('intervention_type', ['displacement'])
+    r.add_flag('data_root', ['intervenable_bouncing_s5_t20_colors'])
+    r.generate_commands(execute=args.for_real)
+
 
 
 if __name__ == '__main__':
@@ -201,5 +237,7 @@ if __name__ == '__main__':
     # all_counterfactuals_geb_7_6_2021()
     # all_counterfactuals_earlier_geb_7_7_2021()
     # all_counterfactuals_earlier_baobab_7_21_2021()
-    testing_colors_baobab_7_22_2021()
+    # testing_colors_baobab_7_22_2021()
     # colors_geb_7_22_2021()
+    # horizon20_geb_8_27_2021()
+    horizon20_baobab_8_27_2021()
