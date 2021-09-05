@@ -52,6 +52,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=None)
     parser.add_argument('-s', '--scenario', default='simple.py', help='Path of the scenario Python script.')
     parser.add_argument('-n', '--num_episodes', type=int, default=20)
+    parser.add_argument('-k', '--num_entities', type=int, default=4)
     parser.add_argument('-t', '--max_episode_length', type=int, default=10)
     parser.add_argument('-i', '--interactive', action='store_true')
     parser.add_argument('--intervention_type', type=str, help='displacement | removal | addition | force')
@@ -75,7 +76,7 @@ if __name__ == '__main__':
     # load scenario from script
     scenario = scenarios.load(args.scenario).Scenario()
     # create world
-    world = scenario.make_world()
+    world = scenario.make_world(args.num_entities)
     # create multiagent environment
     env = create_env(world, scenario)
 
@@ -108,8 +109,8 @@ if __name__ == '__main__':
         if not os.path.exists(data_root):
             os.mkdir(data_root)
 
-        h5_file_before = os.path.join(data_root, '{}_{}_s{}_n{}_t{}_ab.h5'.format(
-            os.path.splitext(os.path.basename(args.scenario))[0], args.intervention_type, args.t_intervene, N, T))
+        h5_file_before = os.path.join(data_root, '{}_{}_k{}_s{}_n{}_t{}_ab.h5'.format(
+            os.path.splitext(os.path.basename(args.scenario))[0], args.intervention_type, args.num_entities,args.t_intervene, N, T))
         h5_before = h5py.File(h5_file_before, 'w')
         assign_attributes(h5_before)
 
@@ -118,8 +119,8 @@ if __name__ == '__main__':
         state_before = h5_before.create_dataset('states', (N, T, K, observed_state_space))
 
 
-        h5_file_after = os.path.join(data_root, '{}_{}_s{}_n{}_t{}_cd.h5'.format(
-            os.path.splitext(os.path.basename(args.scenario))[0], args.intervention_type, args.t_intervene, N, T))
+        h5_file_after = os.path.join(data_root, '{}_{}_k{}_s{}_n{}_t{}_cd.h5'.format(
+            os.path.splitext(os.path.basename(args.scenario))[0], args.intervention_type, args.num_entities, args.t_intervene, N, T))
         h5_after = h5py.File(h5_file_after, 'w')
         assign_attributes(h5_after)
         h5_after.attrs['intervene_step'] = args.t_intervene

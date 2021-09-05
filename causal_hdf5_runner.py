@@ -231,6 +231,20 @@ def horizon20_baobab_8_27_2021():
     r.generate_commands(execute=args.for_real)
 
 
+def n8_s5_t20_baobab_9_5_2021():
+    """
+        t = 20
+    """
+    r = RunnerWithIDs(command='python bin/counterfactual_hdf5.py   --scenario intervenable_bouncing.py', gpus=[])
+    r.add_flag('num_episodes', ['5'])
+    r.add_flag('max_episode_length', ['10'])
+    r.add_flag('t_intervene', ['5'])
+    r.add_flag('num_entities', ['8'])
+    r.add_flag('intervention_type', ['displacement'])
+    r.add_flag('data_root', ['intervenable_bouncing_k8_s5_t10'])
+    r.generate_commands(execute=args.for_real)
+
+
 
 if __name__ == '__main__':
     # all_counterfactuals_draft1_7_6_2021()
@@ -240,4 +254,5 @@ if __name__ == '__main__':
     # testing_colors_baobab_7_22_2021()
     # colors_geb_7_22_2021()
     # horizon20_geb_8_27_2021()
-    horizon20_baobab_8_27_2021()
+    # horizon20_baobab_8_27_2021()
+    n8_s5_t20_baobab_9_5_2021()
