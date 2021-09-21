@@ -287,6 +287,42 @@ def distshift_debug_baobab_9_21_2021():
     r.generate_commands(execute=args.for_real)
 
 
+def distshift_debug_baobab_9_21_2021():
+    """
+        t = 20
+    """
+    r = RunnerWithIDs(command='python bin/counterfactual_hdf5.py --scenario intervenable_bouncing.py', gpus=[])
+    r.add_flag('num_episodes', ['10'])
+    r.add_flag('max_episode_length', ['10'])
+    r.add_flag('t_intervene', ['0'])
+    r.add_flag('num_entities', ['4'])
+    r.add_flag('intervention_type', ['displacement'])
+    r.add_flag('data_root', ['distshift_debug'])
+    r.generate_commands(execute=args.for_real)
+
+
+def distshift_geb_9_21_2021():
+    """
+        t = 20
+    """
+    r = RunnerWithIDs(command='python bin/counterfactual_hdf5.py --scenario intervenable_bouncing.py', gpus=[])
+    r.add_flag('num_episodes', ['2000'])
+    r.add_flag('max_episode_length', ['10'])
+    r.add_flag('t_intervene', ['0'])
+    r.add_flag('num_entities', ['4'])
+    r.add_flag('intervention_type', ['displacement'])
+    r.add_flag('color_dist', [
+        'uniform_k20',
+        'context_swap_k4_4505_a',
+        'context_swap_k4_4505_b',
+        'context_swap_k4_5000_a',
+        'context_swap_k4_5000_b',
+        'multiplicity_k20',
+        ])
+    r.add_flag('data_root', ['distshift'])
+    r.generate_commands(execute=args.for_real)
+
+
 if __name__ == '__main__':
     # all_counterfactuals_draft1_7_6_2021()
     # all_counterfactuals_geb_7_6_2021()
@@ -299,4 +335,5 @@ if __name__ == '__main__':
     # n8_s5_t20_baobab_9_5_2021()
     # displacement_debug_baobab_9_16_2021()
     # displacement_geb_9_16_2021()
-    distshift_debug_baobab_9_21_2021()
+    # distshift_debug_baobab_9_21_2021()
+    distshift_geb_9_21_2021()

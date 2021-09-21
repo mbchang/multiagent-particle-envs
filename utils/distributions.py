@@ -13,20 +13,16 @@ class Uniform():
         self.k = k
 
     def sample(self, n):
-        return np.random.choice(a=self.k, size=n, p=[1.0/self.k]*self.k)
-
-    def reset(self):
-        pass
+        probs = [1.0/self.k for _ in range(self.k)]
+        return np.random.choice(a=self.k, size=n, p=probs)
 
 class BlockUniform():
     def __init__(self, k):
         self.k = k
 
-    def sample(self):
-        return self.id
-
-    def reset(self):
-        self.id = np.random.randint(self.k)
+    def sample(self, n):
+        e = np.random.choice(a=self.k)
+        return np.ones(n, dtype=int)*e
 
 
 # class 
@@ -43,17 +39,29 @@ it's a matrix
 """
 
 class Context():
-    def __init__(self, groups):
+    def __init__(self, k, groups):
+        self.k = k
         self.groups = groups
+        assert all(len(group) == k for group in self.groups)
+        assert all(sum(group) == 1 for group in self.groups)
 
-    def sample(self):
-        # now, given a group id, this group_id defines a frequency over the elements 
-        return 
+    def sample(self, n):
+        probs = self.groups[np.random.choice(a=len(self.groups))]
+        return np.random.choice(a=self.k, size=n, p=probs)
 
-        # a = np.random.multinomial(1, [1/6.]*6, size=1)  # gives you a onehot
+        # return np.random.choice(a=self.k, size=n, p=[1.0/self.k for _ in range(self.k)])
+
+        # e = 
+        # e = np.random.choice(a=self.k)
 
 
-        pass
+        # # now, given a group id, this group_id defines a frequency over the elements 
+        # return 
 
-    def reset(self):
-        self.group_id = np.random.randint(len(self.groups))
+        # # a = np.random.multinomial(1, [1/6.]*6, size=1)  # gives you a onehot
+
+
+    #     pass
+
+    # def reset(self):
+    #     self.group_id = np.random.randint(len(self.groups))

@@ -61,11 +61,13 @@ if __name__ == '__main__':
     parser.add_argument('--intervention_type', type=str, help='displacement | removal | addition | force')
     parser.add_argument('-u', '--t_intervene', type=int, default=5)
     parser.add_argument('--color_dist', type=str, default='uniform', choices=[
-        'uniform',
-        'context_swap_4_a',
-        'context_swap_4_b',
-        'multiplicity_4_a',
-        'multiplicity_4_b'])
+        'uniform_k20',
+        'context_swap_k4_4505_a',
+        'context_swap_k4_4505_b',
+        'context_swap_k4_5000_a',
+        'context_swap_k4_5000_b',
+        'multiplicity_k20',
+        ])
     parser.add_argument('--data_root', type=str, default='')
     args = parser.parse_args()
     assert args.t_intervene >= 0 and args.t_intervene <= args.max_episode_length
@@ -88,16 +90,30 @@ if __name__ == '__main__':
     # load scenario from script
 
 
-    if args.color_dist == 'uniform':
+    if args.color_dist == 'uniform_k20':
         color_dist = dist.Uniform(k=20)
-    elif args.color_dist == 'context_swap_4_a':
-        pass
-    elif args.color_dist == 'context_swap_4_b':
-        pass
-    elif args.color_dist == 'multiplicity_4_a':
-        pass
-    elif args.color_dist == 'multiplicity_4_b':
-        pass  # BlockUniform
+    elif args.color_dist == 'context_swap_k4_4505_a':
+        color_dist = dist.Context(k=4, groups=[
+            [0.45, 0.45, 0.05, 0.05],
+            [0.05, 0.05, 0.45, 0.45],
+            ])
+    elif args.color_dist == 'context_swap_k4_4505_b':
+        color_dist = dist.Context(k=4, groups=[
+            [0.05, 0.45, 0.45, 0.05],
+            [0.45, 0.05, 0.05, 0.45],
+            ])
+    elif args.color_dist == 'context_swap_k4_5000_a':
+        color_dist = dist.Context(k=4, groups=[
+            [0.50, 0.50, 0.00, 0.00],
+            [0.00, 0.00, 0.50, 0.50],
+            ])
+    elif args.color_dist == 'context_swap_k4_5000_b':
+        color_dist = dist.Context(k=4, groups=[
+            [0.00, 0.50, 0.50, 0.00],
+            [0.50, 0.00, 0.00, 0.50],
+            ])
+    elif args.color_dist == 'multiplicity_k20':
+        color_dist = dist.BlockUniform(k=20)
     else:
         raise NotImplementedError
 
@@ -105,13 +121,11 @@ if __name__ == '__main__':
 
 
 
+
+
+
     # default is uniform distribution
     scenario = scenarios.load(args.scenario).Scenario(color_dist=color_dist)
-
-
-
-
-
 
     # create world
     world = scenario.make_world(args.num_entities)
@@ -147,8 +161,37 @@ if __name__ == '__main__':
         if not os.path.exists(data_root):
             os.mkdir(data_root)
 
-        h5_file_before = os.path.join(data_root, '{}_{}_k{}_s{}_n{}_t{}_ab.h5'.format(
-            os.path.splitext(os.path.basename(args.scenario))[0], args.intervention_type, args.num_entities,args.t_intervene, N, T))
+        abbrvs = {
+            'displacement': 'D',
+            'removal': 'R',
+            'addition': 'A',
+
+            'uniform_k20': 'U',
+            'context_swap_k4_4505_a': 'CS4505a',
+            'context_swap_k4_4505_b': 'CS4505b',
+            'context_swap_k4_5000_a': 'CS5000a',
+            'context_swap_k4_5000_b': 'CS5000b',
+            'multiplicity_k20': 'M',
+
+            'intervenable_bouncing': 'balls'
+        }
+
+        def create_prefix():
+            prefix = os.path.join(data_root, '{}_{}_{}k{}s{}n{}t{}'.format(
+            abbrvs[os.path.splitext(os.path.basename(args.scenario))[0]], 
+            abbrvs[args.color_dist],
+            abbrvs[args.intervention_type], 
+            args.num_entities
+            ,args.t_intervene, 
+            N, 
+            T))
+            return prefix
+
+
+        # h5_file_before = os.path.join(data_root, '{}_{}_k{}s{}n{}t{}_ab.h5'.format(
+        #     os.path.splitext(os.path.basename(args.scenario))[0], args.intervention_type, args.num_entities,args.t_intervene, N, T))
+        h5_file_before = f'{create_prefix()}_ab.h5'
+        print(f'Writing to {h5_file_before}')
         h5_before = h5py.File(h5_file_before, 'w')
         assign_attributes(h5_before)
 
@@ -157,8 +200,10 @@ if __name__ == '__main__':
         state_before = h5_before.create_dataset('states', (N, T, K, observed_state_space))
 
 
-        h5_file_after = os.path.join(data_root, '{}_{}_k{}_s{}_n{}_t{}_cd.h5'.format(
-            os.path.splitext(os.path.basename(args.scenario))[0], args.intervention_type, args.num_entities, args.t_intervene, N, T))
+        # h5_file_after = os.path.join(data_root, '{}_{}_k{}s{}n{}t{}_cd.h5'.format(
+        #     os.path.splitext(os.path.basename(args.scenario))[0], args.intervention_type, args.num_entities, args.t_intervene, N, T))
+        h5_file_after = f'{create_prefix()}_cd.h5'
+        print(f'Writing to {h5_file_after}')
         h5_after = h5py.File(h5_file_after, 'w')
         assign_attributes(h5_after)
         h5_after.attrs['intervene_step'] = args.t_intervene
