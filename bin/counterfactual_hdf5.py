@@ -29,6 +29,9 @@ import multiagent.scenarios as scenarios
 
 import modular_rand as mr
 
+import utils.distributions as dist
+
+
 """
     Stackpointer:
         allow the intervention to be at any time-step rather than only the first one
@@ -86,8 +89,7 @@ if __name__ == '__main__':
 
 
     if args.color_dist == 'uniform':
-        num_colors = 20
-        color_probs = [1.0/num_colors]*num_colors
+        color_dist = dist.Uniform(k=20)
     elif args.color_dist == 'context_swap_4_a':
         pass
     elif args.color_dist == 'context_swap_4_b':
@@ -104,7 +106,7 @@ if __name__ == '__main__':
 
 
     # default is uniform distribution
-    scenario = scenarios.load(args.scenario).Scenario(num_colors=20)
+    scenario = scenarios.load(args.scenario).Scenario(color_dist=color_dist)
 
 
 
