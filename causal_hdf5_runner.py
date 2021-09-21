@@ -236,12 +236,40 @@ def n8_s5_t20_baobab_9_5_2021():
         t = 20
     """
     r = RunnerWithIDs(command='python bin/counterfactual_hdf5.py   --scenario intervenable_bouncing.py', gpus=[])
-    r.add_flag('num_episodes', ['5'])
+    r.add_flag('num_episodes', ['10'])
     r.add_flag('max_episode_length', ['10'])
     r.add_flag('t_intervene', ['5'])
     r.add_flag('num_entities', ['8'])
     r.add_flag('intervention_type', ['displacement'])
     r.add_flag('data_root', ['intervenable_bouncing_k8_s5_t10'])
+    r.generate_commands(execute=args.for_real)
+
+
+def displacement_debug_baobab_9_16_2021():
+    """
+        t = 20
+    """
+    r = RunnerWithIDs(command='python bin/counterfactual_hdf5.py   --scenario intervenable_bouncing.py', gpus=[])
+    r.add_flag('num_episodes', ['10'])
+    r.add_flag('max_episode_length', ['10'])
+    r.add_flag('t_intervene', ['0', '5'])
+    r.add_flag('num_entities', ['4', '8'])
+    r.add_flag('intervention_type', ['displacement'])
+    r.add_flag('data_root', ['displacement_debug'])
+    r.generate_commands(execute=args.for_real)
+
+
+def displacement_geb_9_16_2021():
+    """
+        t = 20
+    """
+    r = RunnerWithIDs(command='python bin/counterfactual_hdf5.py --scenario intervenable_bouncing.py', gpus=[])
+    r.add_flag('num_episodes', ['2000'])
+    r.add_flag('max_episode_length', ['10'])
+    r.add_flag('t_intervene', ['0', '1', '2', '3', '4',' 5'])
+    r.add_flag('num_entities', ['4', '8'])
+    r.add_flag('intervention_type', ['displacement'])
+    r.add_flag('data_root', ['displacement'])
     r.generate_commands(execute=args.for_real)
 
 
@@ -255,4 +283,6 @@ if __name__ == '__main__':
     # colors_geb_7_22_2021()
     # horizon20_geb_8_27_2021()
     # horizon20_baobab_8_27_2021()
-    n8_s5_t20_baobab_9_5_2021()
+    # n8_s5_t20_baobab_9_5_2021()
+    displacement_debug_baobab_9_16_2021()
+    # displacement_geb_9_16_2021()

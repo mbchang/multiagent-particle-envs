@@ -105,7 +105,7 @@ if __name__ == '__main__':
     if args.interactive:
         h5_before, h5_after = None, None
     else:
-        data_root = 'hdf5_data/{}'.format(args.data_root)
+        data_root = 'ball_data/{}'.format(args.data_root)
         if not os.path.exists(data_root):
             os.mkdir(data_root)
 
