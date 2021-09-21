@@ -57,6 +57,12 @@ if __name__ == '__main__':
     parser.add_argument('-i', '--interactive', action='store_true')
     parser.add_argument('--intervention_type', type=str, help='displacement | removal | addition | force')
     parser.add_argument('-u', '--t_intervene', type=int, default=5)
+    parser.add_argument('--color_dist', type=str, default='uniform', choices=[
+        'uniform',
+        'context_swap_4_a',
+        'context_swap_4_b',
+        'multiplicity_4_a',
+        'multiplicity_4_b'])
     parser.add_argument('--data_root', type=str, default='')
     args = parser.parse_args()
     assert args.t_intervene >= 0 and args.t_intervene <= args.max_episode_length
@@ -73,8 +79,38 @@ if __name__ == '__main__':
 
 
 
+    # # load scenario from script
+    # scenario = scenarios.load(args.scenario).Scenario()
+
     # load scenario from script
-    scenario = scenarios.load(args.scenario).Scenario()
+
+
+    if args.color_dist == 'uniform':
+        num_colors = 20
+        color_probs = [1.0/num_colors]*num_colors
+    elif args.color_dist == 'context_swap_4_a':
+        pass
+    elif args.color_dist == 'context_swap_4_b':
+        pass
+    elif args.color_dist == 'multiplicity_4_a':
+        pass
+    elif args.color_dist == 'multiplicity_4_b':
+        pass  # BlockUniform
+    else:
+        raise NotImplementedError
+
+
+
+
+
+    # default is uniform distribution
+    scenario = scenarios.load(args.scenario).Scenario(num_colors=20)
+
+
+
+
+
+
     # create world
     world = scenario.make_world(args.num_entities)
     # create multiagent environment
