@@ -66,6 +66,8 @@ if __name__ == '__main__':
         'context_swap_k4_4505_b',
         'context_swap_k4_5000_a',
         'context_swap_k4_5000_b',
+        'fcontext_swap_k4_752500_a',
+        'fcontext_swap_k4_752500_b',
         'multiplicity_k20',
         ])
     parser.add_argument('--data_root', type=str, default='')
@@ -111,6 +113,16 @@ if __name__ == '__main__':
         color_dist = dist.Context(k=4, groups=[
             [0.00, 0.50, 0.50, 0.00],
             [0.50, 0.00, 0.00, 0.50],
+            ])
+    elif args.color_dist == 'fcontext_swap_k4_752500_a':
+        color_dist = dist.Fixed(k=4, groups=[
+            [0.75, 0.25, 0.00, 0.00],
+            [0.00, 0.00, 0.75, 0.25],
+            ])
+    elif args.color_dist == 'fcontext_swap_k4_752500_b':
+        color_dist = dist.Fixed(k=4, groups=[
+            [0.00, 0.25, 0.75, 0.00],
+            [0.75, 0.00, 0.00, 0.25],
             ])
     elif args.color_dist == 'multiplicity_k20':
         color_dist = dist.BlockUniform(k=20)
@@ -171,6 +183,11 @@ if __name__ == '__main__':
             'context_swap_k4_4505_b': 'CS4505b',
             'context_swap_k4_5000_a': 'CS5000a',
             'context_swap_k4_5000_b': 'CS5000b',
+
+            'fcontext_swap_k4_752500_a': 'FCS752500_a',
+            'fcontext_swap_k4_752500_b': 'FCS752500_b',
+
+
             'multiplicity_k20': 'M',
 
             'intervenable_bouncing': 'balls'
