@@ -184,8 +184,8 @@ if __name__ == '__main__':
             'context_swap_k4_5000_a': 'CS5000a',
             'context_swap_k4_5000_b': 'CS5000b',
 
-            'fcontext_swap_k4_752500_a': 'FCS752500_a',
-            'fcontext_swap_k4_752500_b': 'FCS752500_b',
+            'fcontext_swap_k4_752500_a': 'FCS752500a',
+            'fcontext_swap_k4_752500_b': 'FCS752500b',
 
 
             'multiplicity_k20': 'M',
@@ -194,8 +194,10 @@ if __name__ == '__main__':
         }
 
         def create_prefix():
-            prefix = os.path.join(data_root, '{}_{}_{}k{}s{}n{}t{}'.format(
-            abbrvs[os.path.splitext(os.path.basename(args.scenario))[0]], 
+            # prefix = os.path.join(data_root, '{}_{}-{}k{}s{}n{}t{}'.format(
+            # abbrvs[os.path.splitext(os.path.basename(args.scenario))[0]], 
+            prefix = os.path.join(data_root, '{}-{}k{}s{}n{}t{}'.format(
+            # abbrvs[os.path.splitext(os.path.basename(args.scenario))[0]], 
             abbrvs[args.color_dist],
             abbrvs[args.intervention_type], 
             args.num_entities

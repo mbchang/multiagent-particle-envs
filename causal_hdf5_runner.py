@@ -312,12 +312,12 @@ def distshift_geb_9_21_2021():
     r.add_flag('num_entities', ['4'])
     r.add_flag('intervention_type', ['displacement'])
     r.add_flag('color_dist', [
-        # 'uniform_k20',
-        # 'context_swap_k4_4505_a',
-        # 'context_swap_k4_4505_b',
-        # 'context_swap_k4_5000_a',
-        # 'context_swap_k4_5000_b',
-        # 'multiplicity_k20',
+        'uniform_k20',
+        'context_swap_k4_4505_a',
+        'context_swap_k4_4505_b',
+        'context_swap_k4_5000_a',
+        'context_swap_k4_5000_b',
+        'multiplicity_k20',
         'fcontext_swap_k4_752500_a',
         'fcontext_swap_k4_752500_b',
         ])
@@ -329,7 +329,7 @@ def distshift_baobab_9_21_2021():
         t = 20
     """
     r = RunnerWithIDs(command='python bin/counterfactual_hdf5.py --scenario intervenable_bouncing.py', gpus=[])
-    r.add_flag('num_episodes', ['10'])
+    r.add_flag('num_episodes', ['100'])
     r.add_flag('max_episode_length', ['10'])
     r.add_flag('t_intervene', ['0'])
     r.add_flag('num_entities', ['4'])
