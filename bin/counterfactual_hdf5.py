@@ -23,8 +23,10 @@ if torch.cuda.is_available() and 'vdisplay' not in globals():
 # from multiagent.environment import MultiAgentEnv
 from multiagent.pygame_environment import PGMultiAgentEnv
 
-from multiagent.policy import RandomPolicy, SingleActionPolicy, ForcefulRandomPolicy, DoNothingPolicy
+from multiagent.policy import RandomPolicy, SingleActionPolicy, ForcefulRandomPolicy, DoNothingPolicy, VeryForcefulRandomPolicy
 import multiagent.scenarios as scenarios
+
+import multiagent
 
 
 import modular_rand as mr
@@ -58,6 +60,7 @@ if __name__ == '__main__':
     parser.add_argument('-k', '--num_entities', type=int, default=4)
     parser.add_argument('-t', '--max_episode_length', type=int, default=10)
     parser.add_argument('-i', '--interactive', action='store_true')
+    parser.add_argument('-m', '--multiagent', action='store_true')
     parser.add_argument('--intervention_type', type=str, help='displacement | removal | addition | force')
     parser.add_argument('-u', '--t_intervene', type=int, default=5)
     parser.add_argument('--color_dist', type=str, default='uniform', choices=[
@@ -151,7 +154,13 @@ if __name__ == '__main__':
     # for i in [a.id_num for a in env.agents]:
     for a in env.agents:
         if a.controllable:
-            policies.append(ForcefulRandomPolicy(env, a.id_num))
+            if isinstance(env.world, multiagent.core.PushingBoxWorld):
+                policies.append(VeryForcefulRandomPolicy(env, a.id_num))
+            else:
+                # print(type(env.world))
+                # assert False
+                # use VeryForcefulRandomPolicy if 
+                policies.append(ForcefulRandomPolicy(env, a.id_num))
         else:
             policies.append(DoNothingPolicy(env, a.id_num))
 
@@ -223,7 +232,10 @@ if __name__ == '__main__':
         assign_attributes(h5_before)
 
         obs_before = h5_before.create_dataset('observations', (N, T, C, H, W), dtype='f')
-        act_before = h5_before.create_dataset('actions', (N, T, K, observed_action_space))
+        if args.multiagent:
+            act_before = h5_before.create_dataset('actions', (N, T, K, observed_action_space))
+        else:
+            act_before = h5_before.create_dataset('actions', (N, T, observed_action_space))
         state_before = h5_before.create_dataset('states', (N, T, K, observed_state_space))
 
 
@@ -237,7 +249,10 @@ if __name__ == '__main__':
         h5_after.attrs['intervention_type'] = args.intervention_type
 
         obs_after = h5_after.create_dataset('observations', (N, T, C, H, W), dtype='f')
-        act_after = h5_after.create_dataset('actions', (N, T, K, observed_action_space))
+        if args.multiagent:
+            act_after = h5_after.create_dataset('actions', (N, T, K, observed_action_space))
+        else:
+            act_after = h5_after.create_dataset('actions', (N, T, observed_action_space))
         state_after = h5_after.create_dataset('states', (N, T, K, observed_state_space))
 
 
@@ -252,9 +267,21 @@ if __name__ == '__main__':
                 time.sleep(0.2)
             else:
                 h5_data['observations'][n, t] = render_hdf5(env)
-                for policy in policies:
-                    h5_data['actions'][n, t, policy.id_num] = act_n[policy.id_num]
-                    h5_data['states'][n, t, policy.id_num] = obs_n[policy.id_num][:observed_state_space]
+                # for policy in policies:
+                #     h5_data['actions'][n, t, policy.id_num] = act_n[policy.id_num]
+                #     h5_data['states'][n, t, policy.id_num] = obs_n[policy.id_num][:observed_state_space]
+                if args.multiagent:
+                    for policy in policies:
+                        h5_data['actions'][n, t, policy.id_num] = act_n[policy.id_num]
+                        h5_data['states'][n, t, policy.id_num] = obs_n[policy.id_num][:observed_state_space]
+                else:
+                    assigned_action = False
+                    for policy in policies:
+                        if not isinstance(policy, DoNothingPolicy):
+                            assert assigned_action == False
+                            h5_data['actions'][n, t] = act_n[policy.id_num]
+                            assigned_action = True
+                        h5_data['states'][n, t, policy.id_num] = obs_n[policy.id_num][:observed_state_space]
 
         return obs_n
 
