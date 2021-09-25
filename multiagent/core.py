@@ -407,3 +407,9 @@ class CollideFrictionlessBoxWorld(BoxWorld):
         self.damping = 0
         self.allow_collisions = True
 
+
+class PushingBoxWorld(BoxWorld):
+    def __init__(self):
+        BoxWorld.__init__(self)
+        self.allow_collisions = True
+

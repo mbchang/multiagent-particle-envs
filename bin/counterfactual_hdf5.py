@@ -144,8 +144,16 @@ if __name__ == '__main__':
     # create multiagent environment
     env = create_env(world, scenario)
 
-    policy_type = ForcefulRandomPolicy
-    policies = [policy_type(env, i) for i in [a.id_num for a in env.agents]]
+    # policy_type = ForcefulRandomPolicy
+    # policies = [policy_type(env, i) for i in [a.id_num for a in env.agents]]
+
+    policies = []
+    # for i in [a.id_num for a in env.agents]:
+    for a in env.agents:
+        if a.controllable:
+            policies.append(ForcefulRandomPolicy(env, a.id_num))
+        else:
+            policies.append(DoNothingPolicy(env, a.id_num))
 
     observed_action_space = 2*world.dim_p + 1 + world.dim_c
     observed_state_space = 2*world.dim_p  # 2 for p_pos, 2 for p_vel
@@ -288,19 +296,55 @@ if __name__ == '__main__':
         return obs_n
 
 
+    # def counterfactual(t_intervene, intervention_type):
+    #     for n in tqdm.tqdm(range(N)):
+
+    #         # run original environment
+    #         obs_n = env.reset()
+    #         obs_n = sample_episode_do_nothing(obs_n, env, policies, range(t_intervene), n, h5_before)
+
+    #         # maybe here you can copy the data from obs_before to obs_after
+    #         modified_world = scenario.modify_world(env.world, 
+    #             intervention_type=intervention_type)
+
+    #         # run original environment
+    #         sample_episode_do_nothing(obs_n, env, policies, range(t_intervene, T), n, h5_before)
+    #         env.close()
+
+    #         # create new environment
+    #         modified_env = create_env(modified_world, scenario)
+    #         modified_obs_n = modified_env.get_obs()
+
+    #         new_policies = []
+    #         for a in modified_world.agents:
+    #             if a.id_num in [p.id_num for p in policies]:
+    #                 new_policies.append(policies[a.id_num])
+    #             else:
+    #                 new_policies.append(policy_type(env, a.id_num))
+
+    #         # run modified_environment
+    #         sample_episode_do_nothing(modified_obs_n, modified_env, new_policies, range(t_intervene, T), n, h5_after)
+    #         modified_env.close()
+
+    #     # copy the data from obs_before to obs_after, in bulk
+    #     if not args.interactive:
+    #         obs_after[:, :t_intervene] = obs_before[:, :t_intervene]
+    #         act_after[:, :t_intervene] = act_before[:, :t_intervene]
+
+
     def counterfactual(t_intervene, intervention_type):
         for n in tqdm.tqdm(range(N)):
 
             # run original environment
             obs_n = env.reset()
-            obs_n = sample_episode_do_nothing(obs_n, env, policies, range(t_intervene), n, h5_before)
+            obs_n = sample_episode(obs_n, env, policies, range(t_intervene), n, h5_before)
 
             # maybe here you can copy the data from obs_before to obs_after
             modified_world = scenario.modify_world(env.world, 
                 intervention_type=intervention_type)
 
             # run original environment
-            sample_episode_do_nothing(obs_n, env, policies, range(t_intervene, T), n, h5_before)
+            sample_episode(obs_n, env, policies, range(t_intervene, T), n, h5_before)
             env.close()
 
             # create new environment
@@ -315,7 +359,7 @@ if __name__ == '__main__':
                     new_policies.append(policy_type(env, a.id_num))
 
             # run modified_environment
-            sample_episode_do_nothing(modified_obs_n, modified_env, new_policies, range(t_intervene, T), n, h5_after)
+            sample_episode(modified_obs_n, modified_env, new_policies, range(t_intervene, T), n, h5_after)
             modified_env.close()
 
         # copy the data from obs_before to obs_after, in bulk
@@ -324,7 +368,10 @@ if __name__ == '__main__':
             act_after[:, :t_intervene] = act_before[:, :t_intervene]
 
 
+
     def counterfactual_with_force_intervention(t_intervene):
+        # raise NotImplementedError('note that instead of doing do_nothing_episode_step, I am just doing normal episode step, but with DoNothingPolicys')
+
         for n in tqdm.tqdm(range(N)):
 
             # run original environment
@@ -334,7 +381,7 @@ if __name__ == '__main__':
             modified_world = copy.deepcopy(env.world)
 
             # run original environment
-            sample_episode_do_nothing(obs_n, env, policies, range(T), n, h5_before)
+            sample_episode(obs_n, env, policies, range(T), n, h5_before)
             env.close()
 
             # create new environment
