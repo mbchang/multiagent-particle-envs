@@ -33,7 +33,7 @@ class Scenario(BaseScenario):
         colors = [self.colors[c_id][:-1] for c_id in color_indices]
         return colors
 
-    def make_world(self, k=6):
+    def make_world(self, k=1):
         world = PushingBoxWorld()
         world.agents = [NFAgent(i) for i in range(k)]
         self.reset_world(world)
