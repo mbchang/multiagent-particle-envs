@@ -98,6 +98,24 @@ class PygameRenderer():
         # x = x.transpose((2,0,1))
         return x
 
+    def render_uint8(self, entities, target_size):
+        # should you start the screen here?
+        border = Rect(0, 0, self.screen_width, self.screen_height)
+        pygame.draw.rect(self.screen, Color("black"), border)
+        for entity in entities:
+            rendered_entity = self.convert(entity)
+            pygame.draw.circle(self.screen, 
+                rendered_entity.color, 
+                rendered_entity.pos,
+                rendered_entity.size)
+        pygame.display.flip()
+
+        x = pygame.surfarray.array3d(self.screen)
+        x = cv2.resize(x, target_size)
+        # x = x.astype('float')/255
+        # x = x.transpose((2,0,1))
+        return x
+
 
 
     def render_with_masks(self, entities, target_size):
