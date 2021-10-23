@@ -14,7 +14,7 @@ class Scenario(BaseScenario):
 
     # have an init method that takes in a set of categorical weights for the colors
 
-    def __init__(self, color_dist):
+    def __init__(self, color_dist=dist.Uniform(k=20)):
         self.dist = color_dist
         self.colors = plt.cm.rainbow(np.linspace(0, 1, self.dist.k))
 
