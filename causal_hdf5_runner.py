@@ -377,6 +377,33 @@ def whiteball_push_geb_9_24_2021():
     r.add_flag('data_root', ['whiteballpush'])
     r.generate_commands(execute=args.for_real)
 
+def whiteball_push_baobab_9_27_2021():
+    """
+        t = 20
+    """
+    r = RunnerWithIDs(command='python bin/counterfactual_hdf5.py --scenario intervenable_bouncing_white_action.py', gpus=[])
+    r.add_flag('num_episodes', ['10'])
+    r.add_flag('max_episode_length', ['10'])
+    r.add_flag('t_intervene', ['0'])
+    r.add_flag('num_entities', ['1'])
+    r.add_flag('color_dist', ['uniform_k20'])
+    r.add_flag('intervention_type', ['displacement'])
+    r.add_flag('data_root', ['singlewhiteballpush'])
+    r.generate_commands(execute=args.for_real)
+
+def whiteball_push_geb_9_27_2021():
+    """
+        t = 20
+    """
+    r = RunnerWithIDs(command='python bin/counterfactual_hdf5.py --scenario intervenable_bouncing_white_action.py', gpus=[])
+    r.add_flag('num_episodes', ['2000'])
+    r.add_flag('max_episode_length', ['10'])
+    r.add_flag('t_intervene', ['0'])
+    r.add_flag('num_entities', ['1'])
+    r.add_flag('color_dist', ['uniform_k20'])
+    r.add_flag('intervention_type', ['displacement'])
+    r.add_flag('data_root', ['singlewhiteballpush'])
+    r.generate_commands(execute=args.for_real)
 
 if __name__ == '__main__':
     # all_counterfactuals_draft1_7_6_2021()
@@ -394,4 +421,6 @@ if __name__ == '__main__':
     # distshift_geb_9_21_2021()
     # distshift_baobab_9_21_2021()
     # whiteball_push_baobab_9_24_2021()
-    whiteball_push_geb_9_24_2021()
+    # whiteball_push_geb_9_24_2021()
+    # whiteball_push_baobab_9_27_2021()
+    whiteball_push_geb_9_27_2021()
