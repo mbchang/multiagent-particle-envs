@@ -4,7 +4,7 @@ sys.path.insert(1, os.path.join(sys.path[0], '..'))
 import argparse
 
 from multiagent.environment import MultiAgentEnv
-from multiagent.policy import RandomPolicy, SingleActionPolicy, DoNothingPolicy, ForcefulRandomPolicy
+from multiagent.policy import RandomPolicy, SingleActionPolicy, DoNothingPolicy, ForcefulRandomPolicy, VeryForcefulRandomPolicy
 import multiagent.scenarios as scenarios
 
 if __name__ == '__main__':
@@ -24,7 +24,7 @@ if __name__ == '__main__':
     # create interactive policies for each agent
     # policies = [RandomPolicy(env) for i in range(env.n)]
     # policies = [SingleActionPolicy(env) for i in range(env.n)]
-    policies = [ForcefulRandomPolicy(env, 0)] + [DoNothingPolicy(env, i) for i in range(1, env.n)]
+    policies = [VeryForcefulRandomPolicy(env, 0)] + [DoNothingPolicy(env, i) for i in range(1, env.n)]
 
     # execution loop
     obs_n = env.reset()
@@ -42,3 +42,5 @@ if __name__ == '__main__':
         # display rewards
         #for agent in env.world.agents:
         #    print(agent.name + " reward: %0.3f" % env._get_reward(agent))
+        import time
+        time.sleep(1)
