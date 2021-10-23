@@ -61,9 +61,9 @@ if __name__ == '__main__':
     parser.add_argument('-t', '--max_episode_length', type=int, default=10)
     parser.add_argument('-i', '--interactive', action='store_true')
     parser.add_argument('-m', '--multiagent', action='store_true')
-    parser.add_argument('--intervention_type', type=str, help='displacement | removal | addition | force')
+    parser.add_argument('--intervention_type', type=str, help='displacement | removal | addition | force', default='displacement')
     parser.add_argument('-u', '--t_intervene', type=int, default=5)
-    parser.add_argument('--color_dist', type=str, default='uniform', choices=[
+    parser.add_argument('--color_dist', type=str, default='uniform_k20', choices=[
         'uniform_k20',
         'context_swap_k4_4505_a',
         'context_swap_k4_4505_b',
