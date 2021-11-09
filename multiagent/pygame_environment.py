@@ -84,7 +84,7 @@ class PygameRenderer():
         # should you start the screen here?
         border = Rect(0, 0, self.screen_width, self.screen_height)
         pygame.draw.rect(self.screen, Color("black"), border)
-        for entity in entities:
+        for entity in entities[::-1]:
             rendered_entity = self.convert(entity)
             pygame.draw.circle(self.screen, 
                 rendered_entity.color, 
@@ -102,7 +102,7 @@ class PygameRenderer():
         # should you start the screen here?
         border = Rect(0, 0, self.screen_width, self.screen_height)
         pygame.draw.rect(self.screen, Color("black"), border)
-        for entity in entities:
+        for entity in entities[::-1]:
             rendered_entity = self.convert(entity)
             pygame.draw.circle(self.screen, 
                 rendered_entity.color, 
