@@ -3,7 +3,7 @@ import os,sys
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 import argparse
 
-from multiagent.environment import MultiAgentEnv
+from multiagent.environment import MultiAgentEnv, ReversedMultiAgentEnv
 from multiagent.policy import RandomPolicy, SingleActionPolicy, DoNothingPolicy, ForcefulRandomPolicy, VeryForcefulRandomPolicy
 import multiagent.scenarios as scenarios
 
@@ -18,13 +18,14 @@ if __name__ == '__main__':
     # create world
     world = scenario.make_world()
     # create multiagent environment
-    env = MultiAgentEnv(world, scenario.reset_world, scenario.reward, scenario.observation, info_callback=None, shared_viewer = True)
+    env = ReversedMultiAgentEnv(world, scenario.reset_world, scenario.reward, scenario.observation, info_callback=None, shared_viewer = True)
     # render call to create viewer window (necessary only for interactive policies)
     env.render()
     # create interactive policies for each agent
     # policies = [RandomPolicy(env) for i in range(env.n)]
+    policies = [RandomPolicy(env, 0)] + [DoNothingPolicy(env, i) for i in range(1, env.n)]
     # policies = [SingleActionPolicy(env) for i in range(env.n)]
-    policies = [VeryForcefulRandomPolicy(env, 0)] + [DoNothingPolicy(env, i) for i in range(1, env.n)]
+    # policies = [VeryForcefulRandomPolicy(env, 0)] + [DoNothingPolicy(env, i) for i in range(1, env.n)]
 
     # execution loop
     obs_n = env.reset()
@@ -43,4 +44,4 @@ if __name__ == '__main__':
         #for agent in env.world.agents:
         #    print(agent.name + " reward: %0.3f" % env._get_reward(agent))
         import time
-        time.sleep(1)
+        time.sleep(0.01)

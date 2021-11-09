@@ -298,6 +298,82 @@ class MultiAgentEnv(gym.Env):
         return dx
 
 
+class ReversedMultiAgentEnv(MultiAgentEnv):
+    """
+    same as environment.py, but when we render, we render the first entity on top
+    """
+
+    # render environment
+    def render(self, mode='human'):
+        if mode == 'human':
+            alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+            message = ''
+            for agent in self.world.agents:
+                comm = []
+                for other in self.world.agents:
+                    if other is agent: continue
+                    if np.all(other.state.c == 0):
+                        word = '_'
+                    else:
+                        word = alphabet[np.argmax(other.state.c)]
+                    message += (other.name + ' to ' + agent.name + ': ' + word + '   ')
+            print(message)
+
+        for i in range(len(self.viewers)):
+            # create viewers (if necessary)
+            if self.viewers[i] is None:
+                # import rendering only if we need it (and don't import for headless machines)
+                #from gym.envs.classic_control import rendering
+                from multiagent import rendering
+                self.viewers[i] = rendering.Viewer(700,700)
+                # self.viewers[i] = rendering.Viewer(64,64)  # CHANGED
+
+        # create rendering geometry
+        if self.render_geoms is None:
+            # import rendering only if we need it (and don't import for headless machines)
+            #from gym.envs.classic_control import rendering
+            from multiagent import rendering
+            self.render_geoms = []
+            self.render_geoms_xform = []
+            for entity in self.world.entities:
+                geom = rendering.make_circle(entity.size)
+                xform = rendering.Transform()
+                if 'agent' in entity.name:
+                    # geom.set_color(*entity.color, alpha=0.5)
+                    geom.set_color(*entity.color)
+                else:
+                    geom.set_color(*entity.color)
+                geom.add_attr(xform)
+                self.render_geoms.append(geom)
+                self.render_geoms_xform.append(xform)
+
+            # add geoms to viewer
+            for viewer in self.viewers:
+                viewer.geoms = []
+                for geom in self.render_geoms[::-1]:
+                    viewer.add_geom(geom)
+
+        results = []
+        for i in range(len(self.viewers)):
+            from multiagent import rendering
+            # update bounds to center around agent
+            cam_range = 1
+            if self.shared_viewer:
+                pos = np.zeros(self.world.dim_p)
+            else:
+                pos = self.agents[i].state.p_pos
+            self.viewers[i].set_bounds(pos[0]-cam_range,pos[0]+cam_range,pos[1]-cam_range,pos[1]+cam_range)
+            # update geometry positions
+            for e, entity in enumerate(self.world.entities):
+                self.render_geoms_xform[e].set_translation(*entity.state.p_pos)
+            # render to display or array
+            results.append(self.viewers[i].render(return_rgb_array = mode=='rgb_array'))
+
+        return results
+
+
+
+
 # vectorized wrapper for a batch of multi-agent environments
 # assumes all environments have the same observation and action space
 class BatchMultiAgentEnv(gym.Env):
