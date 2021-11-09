@@ -1,12 +1,12 @@
 import numpy as np
-from multiagent.core import World, Agent, Landmark, BoxWorld
+from multiagent.core import World, Agent, NFAgent, Landmark, BoxWorld
 from multiagent.scenario import BaseScenario
 
 class Scenario(BaseScenario):
-    def make_world(self):
+    def make_world(self, k):
         world = BoxWorld()
         # add agents
-        world.agents = [Agent() for i in range(1)]
+        world.agents = [NFAgent(i) for i in range(1)]
         for i, agent in enumerate(world.agents):
             agent.name = 'agent %d' % i
             agent.collide = False
