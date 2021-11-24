@@ -1,12 +1,13 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import time
-from multiagent.core import World, Agent, NFAgent, Landmark, BoxWorld, SlipperyBoxWorld, CollideSlipperyBoxWorld
+from multiagent.core import World, Agent, NFAgent, Landmark, BoxWorld, SlipperyBoxWorld, CollideSlipperyBoxWorld, PushingBoxWorld
 from multiagent.scenario import BaseScenario
 
 class Scenario(BaseScenario):
     def make_world(self, k=4):
-        world = CollideSlipperyBoxWorld()
+        # world = CollideSlipperyBoxWorld()
+        world = PushingBoxWorld()
         # add agents
         world.agents = [NFAgent(i) for i in range(1)]
         for i, agent in enumerate(world.agents):
