@@ -7,7 +7,7 @@ import tqdm
 from multiagent.core import World, Agent, NFAgent, Landmark, BoxWorld, CollideFrictionlessBoxWorld, PushingBoxWorld
 from multiagent.scenario import BaseScenario
 
-import utils.distributions as dist
+import multiagent_utils.distributions as dist
 
 class Scenario(BaseScenario):
     # colors = plt.cm.rainbow(np.linspace(0,1,20))
